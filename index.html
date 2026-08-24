@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#E7ECF1">
+<title>MY DISASTER — 観測記録</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="wrap">
+  <header class="masthead">
+    <span class="mark">MY <b>DISASTER</b></span>
+    <span class="mast-meta" id="mastMeta">観測所 —</span>
+  </header>
+
+  <!-- ============ 観測 (home) ============ -->
+  <section class="sec" id="s-home">
+    <div class="scale" id="scale"></div>
+    <div class="scale-cap"><span>弱</span><span id="scaleNow">階級 —</span><span>特別警報級</span></div>
+
+    <div class="scope-slot">
+      <span class="scope-tag">RADAR / <span id="scopeMode">OBS</span></span>
+      <span class="scope-tag r" id="scopeDate">—</span>
+      <div id="scopeHost"></div>
+    </div>
+
+    <div class="readout">
+      <div class="cell">
+        <span class="k">階級</span>
+        <div class="v"><span class="num" id="lvNum">1</span><small>Lv</small><br><span id="lvName" style="font-size:13.5px">—</span></div>
+      </div>
+      <div class="cell">
+        <span class="k">連続観測</span>
+        <div class="v"><span class="num" id="stNum">0</span><small>日</small><br><span id="stSub" style="font-size:12px;font-weight:400;color:var(--ink-2)">—</span></div>
+      </div>
+      <div class="cell full">
+        <span class="k">次の階級まで</span>
+        <div class="v" id="nextTxt" style="font-size:13.5px">—</div>
+        <div class="bar"><span id="nextBar" style="width:0"></span></div>
+      </div>
+      <div class="cell full">
+        <span class="k">被害想定</span>
+        <div class="v" id="powerTxt" style="font-size:13.5px">—</div>
+      </div>
+    </div>
+
+    <button class="cta" id="cta">
+      <span class="lab" id="ctaLab">今日の1歩を踏み出す</span>
+      <span class="sub" id="ctaSub">—</span>
+    </button>
+
+    <p class="note" id="note">—</p>
+  </section>
+
+  <!-- ============ 被害 (city) ============ -->
+  <section class="sec" id="s-city" hidden>
+    <h2 class="head">被害区域</h2>
+    <p class="lede" id="cityLede">—</p>
+    <div class="city-wrap"><div id="cityHost"></div></div>
+    <div class="tally" id="tally"></div>
+    <p class="tiny" style="margin-top:14px">壊した対象は記録に残ります。階級が上がると壊せる対象が増えます。</p>
+  </section>
+
+  <!-- ============ 記録 (records) ============ -->
+  <section class="sec" id="s-rec" hidden>
+    <h2 class="head">観測記録</h2>
+    <p class="lede" id="recLede">—</p>
+
+    <div class="stats">
+      <div><span class="k">連続</span><span class="num" id="rSt">0</span></div>
+      <div><span class="k">最長</span><span class="num" id="rMax">0</span></div>
+      <div><span class="k">累計</span><span class="num" id="rTot">0</span></div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <strong style="font-size:13px" id="calTitle">—</strong>
+        <span class="tiny">04:00までは前日として記録</span>
+      </div>
+      <div class="cal-head"><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span><span>日</span></div>
+      <div class="cal" id="cal"></div>
+    </div>
+
+    <h2 class="head" style="margin-top:22px">解放したもの</h2>
+    <div class="tally" id="coll" style="margin-top:10px"></div>
+
+    <h2 class="head" style="margin-top:22px">直近の1歩</h2>
+    <div class="card" style="margin-top:10px" id="logList"></div>
+  </section>
+
+  <!-- ============ 設定 ============ -->
+  <section class="sec" id="s-set" hidden>
+    <h2 class="head">設定</h2>
+    <div class="card" style="margin-top:12px">
+      <label class="f"><span class="k">目標にしている資格</span><input id="fQual" placeholder="基本情報技術者試験"></label>
+      <label class="f"><span class="k">試験日</span><input id="fExam" type="date"></label>
+      <label class="f"><span class="k">リマインドの時刻</span><input id="fTime" type="time"></label>
+      <div class="switch"><input type="checkbox" id="fRemind"><label for="fRemind">アプリを開いたときにリマインドを表示する</label></div>
+      <button class="btn" id="saveSet">設定を保存</button>
+    </div>
+
+    <h2 class="head" style="margin-top:22px">記録の持ち出し</h2>
+    <p class="lede">記録はこの端末のブラウザにだけ保存されます。データを消すと災害も消えるので、ときどき書き出しておいてください。</p>
+    <div class="card">
+      <div class="row">
+        <button class="btn" id="doExport">JSONで書き出す</button>
+        <button class="btn" id="doImport">JSONから戻す</button>
+        <input type="file" id="fileIn" accept="application/json" hidden>
+      </div>
+    </div>
+
+    <h2 class="head" style="margin-top:22px">開発用</h2>
+    <p class="lede">動作確認のためのショートカットです。公開時は削除します。</p>
+    <div class="card">
+      <div class="row">
+        <button class="btn ghost" id="devNext">1日進める</button>
+        <button class="btn ghost" id="devSkip">3日サボる</button>
+        <button class="btn ghost" id="devMax">30日分を記録する</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn danger" id="devReset">すべて消す</button>
+      </div>
+      <p class="tiny" style="margin-top:10px">現在の基準日 <span id="devDate">—</span></p>
+    </div>
+
+    <p class="tiny" style="margin-top:22px">MY DISASTER v0.2 / データ保存先：ブラウザ内 / 送信先：なし</p>
+  </section>
+</div>
+
+<nav class="nav">
+  <button data-go="home" aria-current="true"><span class="g">OBS</span>観測</button>
+  <button data-go="city"><span class="g">DMG</span>被害</button>
+  <button data-go="rec"><span class="g">LOG</span>記録</button>
+  <button data-go="set"><span class="g">CFG</span>設定</button>
+</nav>
+
+<div class="veil" id="veil"><div class="veil-in">
+  <div class="veil-eyebrow" id="vEyebrow">LEVEL UP</div>
+  <div class="veil-lv" id="vLv">2</div>
+  <div class="veil-name" id="vName">つむじ風</div>
+  <div class="veil-power" id="vPower"></div>
+  <div id="vUnlockWrap"></div>
+  <button class="btn" id="vClose">閉じる</button>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
