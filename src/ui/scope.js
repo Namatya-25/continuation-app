@@ -10,7 +10,14 @@ const CX = 200, CY = 168;   // スコープの中心
 
 /** 現在の状態からスコープのSVG文字列を作る */
 export function scopeSVG() {
-  return `<img class="tornado-image" src="./assets/tornado/3-1.png" alt="" > `;
+  const lv = Math.min(7, Math.max(1, S.disaster.level));
+
+  return `
+    <div class="tornado-images">
+      <img class="tornado-image" src="./assets/tornado/${lv}-1.png" alt="" >
+      <img class="tornado-image" src="./assets/tornado/${lv}-2.png" alt="" >
+    </div> 
+  `;
 }
 
 /* ---------- 部品 ---------- */
