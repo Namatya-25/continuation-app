@@ -70,15 +70,19 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 
 /* ---------- scope ---------- */
 .scope-slot{
-  margin:14px 0 0;background:var(--scope);border-radius:var(--radius);
-  position:relative;overflow:hidden;
-  box-shadow:inset 0 0 0 1px #000, inset 0 2px 18px rgba(0,0,0,.6);
+  margin:14px 0 0;
+  background:#808080;
+  border-radius:var(--radius);
+  position:relative;
+  overflow:hidden;
+  min-height:336px;
+  box-shadow:inset 0 0 0 1px #000;
 }
 .scope-slot svg{display:block;width:100%;height:auto}
 .scope-tag{
   position:absolute;top:10px;left:12px;
   font-family:var(--mono);font-size:10px;letter-spacing:.14em;
-  color:#5B7691;
+  color:#d5d8e0;
 }
 .scope-tag.r{left:auto;right:12px;text-align:right}
 #sweep{transform-origin:200px 168px;animation:sweep 4.4s linear infinite}
