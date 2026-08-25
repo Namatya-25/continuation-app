@@ -10,42 +10,7 @@ const CX = 200, CY = 168;   // スコープの中心
 
 /** 現在の状態からスコープのSVG文字列を作る */
 export function scopeSVG() {
-  const lv    = Math.max(1, S.disaster.level);
-  const band  = bandOf(lv).c;
-  const weak  = S.disaster.condition === 'weakened';
-  const scale = 0.42 + Math.min(lv, 30) * 0.021;
-  const rm    = matchMedia('(prefers-reduced-motion:reduce)').matches;
-
-  return `<svg viewBox="0 0 400 336" xmlns="http://www.w3.org/2000/svg" role="img"
-      aria-label="階級${lv} ${tierOf(lv).name}のレーダー表示">
-    <defs>
-      <radialGradient id="glow">
-        <stop offset="0" stop-color="${band}" stop-opacity=".26"/>
-        <stop offset="1" stop-color="${band}" stop-opacity="0"/>
-      </radialGradient>
-      <linearGradient id="sw" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="${band}" stop-opacity=".34"/>
-        <stop offset="1" stop-color="${band}" stop-opacity="0"/>
-      </linearGradient>
-    </defs>
-
-    ${grid()}
-    <circle cx="${CX}" cy="${CY}" r="148" fill="url(#glow)"/>
-    ${rm ? '' : `<g id="sweep"><path d="M${CX} ${CY} L348 ${CY} A148 148 0 0 0 305 63 Z" fill="url(#sw)"/></g>`}
-    ${rm ? '' : debris(lv, band)}
-
-    <g id="funnel" opacity="${weak ? .5 : 1}">
-      <g transform="translate(${CX},${CY}) scale(${scale}) translate(${-CX},${-CY})">
-        ${funnel(lv, band)}
-        ${face(lv, weak)}
-      </g>
-    </g>
-
-    <text x="${CX}" y="322" text-anchor="middle" fill="#5B7691"
-      font-family="'IBM Plex Mono',monospace" font-size="10" letter-spacing="1.6">
-      ${weak ? 'WEAKENED' : 'ACTIVE'} / ECHO ${String(lv).padStart(2, '0')}
-    </text>
-  </svg>`;
+  return `<img class="tornado-image" src="./assets/tornado/3-1.png" alt="" > `;
 }
 
 /* ---------- 部品 ---------- */
