@@ -48,7 +48,7 @@ function renderHome() {
   $('#scaleNow').textContent = days > 0 ? band.label : '未観測';
 
   // スコープ
-  $('#scopeHost').innerHTML = scopeSVG();
+  $('#scopeHost').innerHTML = '';  /* 元はscopeSVG() */
   $('#scopeMode').textContent = S.disaster.condition === 'weakened' ? 'WEAK' : 'OBS';
   $('#scopeDate').textContent = logicalToday().replace(/-/g, '.');
   $('#mastMeta').textContent = S.settings.targetQualification
