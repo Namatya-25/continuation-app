@@ -87,14 +87,14 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
   object-fit:contain;
 }
 .tornado-images{ /* tornadoではない */
-　position:absolute;
-inset:0;
+  position:absolute;
+  inset:0;
 }
 /* tornadoのアニメーション */
 .tornado-image:first-child{
   animation:tornado-frame1 .8s steps(1) infinite;
 }
-.tornado-image:last-child{
+.tornado-image:nth-of-type(2){
   animation:tornado-frame2 .8s steps(1) infinite;
 }
 @keyframes tornado-frame1{
@@ -104,6 +104,61 @@ inset:0;
 @keyframes tornado-frame2{
   0%,49.99%{opacity:0}
   50%,100%{opacity:1}
+}
+
+/* face */
+.face-images{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:2;
+}
+
+.face-image{
+  position:absolute;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+.face-m1{
+  opacity:1;
+  animation: blink-base 4s ease-in-out infinite;
+}
+
+.face-m2{
+  opacity:0;
+  animation: blink 4s ease-in-out infinite;
+}
+
+.face-m3{
+  opacity:0;
+}
+
+@keyframes blink{
+  0%, 45%, 100%{
+    opacity:0;
+  }
+  47%, 49%{
+    opacity:1;
+  }
+  51%, 53%{
+    opacity:0;
+  }
+}
+
+@keyframes blink-base{
+  0%, 45%, 100%{
+    opacity:1;
+  }
+  47%, 49%{
+    opacity:0;
+  }
+  51%, 53%{
+    opacity:1;
+  }
 }
 
 .scope-slot svg{display:block;width:100%;height:auto}
