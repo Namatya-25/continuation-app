@@ -38,6 +38,7 @@ function renderHome() {
   const lv    = Math.max(1, S.disaster.level);
   const tier  = tierOf(lv);
   const band  = bandOf(lv);
+  const bandNo = BANDS.indexOf(band) + 1;
   const nx    = nextInfo(days);
   const done  = S.streak.lastAchievedOn === logicalToday();
 
@@ -55,7 +56,7 @@ function renderHome() {
     ? '目標 ' + S.settings.targetQualification : '観測所 —';
 
   // 読み取り値
-  $('#lvNum').textContent   = days > 0 ? lv : 0;
+  $('#lvNum').textContent   = days > 0 ? bandNo : 0;
   $('#lvName').textContent  = days > 0 ? tier.name : '未発生';
   $('#stNum').textContent   = days;
   $('#stSub').textContent   = S.disaster.condition === 'weakened' ? '弱まっています'
