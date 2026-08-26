@@ -289,6 +289,22 @@ $('#devReset').addEventListener('click', () => {
   applyDecay();
   persist();
   render();
+
+  // ── 初回チュートリアルの制御 ──
+  const tut = $('#tutorialVeil');
+  if (!S.flags.onboardingDone) {
+    tut.style.opacity = '1';
+    tut.style.pointerEvents = 'auto';
+  }
+
+  $('#closeTutorial').addEventListener('click', () => {
+    tut.style.opacity = '0';
+    tut.style.pointerEvents = 'none';
+    S.flags.onboardingDone = true;
+    persist();
+  });
+  // -------------------------
+
   if (!S.flags.onboardingDone && S.logs.length === 0) {
     setTimeout(() => toast('設定から目標の資格を登録できます'), 900);
   }
