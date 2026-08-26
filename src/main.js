@@ -352,6 +352,11 @@ function triggerShakeDestroy() {
   const targetObj = unlocked[Math.floor(Math.random() * unlocked.length)];
   
   destroyObject(targetObj.id);
+
+  // ── スマホに振動をあたえる（例：80ミリ秒間ブルッとさせる） ──
+  if (navigator.vibrate) {
+    navigator.vibrate(80);
+  }
   
   const el = document.querySelector(`.obj[data-id="${targetObj.id}"]`);
   if (el) el.classList.add('shake');
