@@ -355,7 +355,7 @@ function triggerShakeDestroy() {
 
   // ── スマホに振動をあたえる（例：80ミリ秒間ブルッとさせる） ──
   if (navigator.vibrate) {
-    navigator.vibrate(80);
+    navigator.vibrate(120);
   }
   
   const el = document.querySelector(`.obj[data-id="${targetObj.id}"]`);
