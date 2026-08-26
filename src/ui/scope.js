@@ -19,6 +19,12 @@ export function scopeSVG() {
     <div class="tornado-images">
       <img class="tornado-image" src="./assets/tornado/${bandNo}-1.png" alt="" >
       <img class="tornado-image" src="./assets/tornado/${bandNo}-2.png" alt="" >
+
+      <div class="face-images">
+      <img class="face-image face-m1" src="./assets/face/${bandNo}-m1.png" alt="" >
+      <img class="face-image face-m2" src="./assets/face/${bandNo}-m2.png" alt="" >
+      <img class="face-image face-m3" src="./assets/face/${bandNo}-m3.png" alt="" >
+      </div>
     </div> 
   `;
 }
