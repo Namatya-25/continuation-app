@@ -317,7 +317,7 @@ $('#devReset').addEventListener('click', () => {
    ============================================================ */
 let lastX = 0, lastY = 0, lastZ = 0;
 let lastUpdate = 0;
-const SHAKE_THRESHOLD = 150; // 振る強さの閾値
+const SHAKE_THRESHOLD = 1000; // 振る強さの閾値
 
 function handleDeviceMotion(e) {
   const current = e.accelerationIncludingGravity;
