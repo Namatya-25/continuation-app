@@ -15,6 +15,7 @@ import { STEPS, VOICE } from './data/copy.js';
 import { scopeSVG } from './ui/scope.js';
 import { citySVG, cityLede, tallyHTML } from './ui/city.js';
 import { calendarHTML, collectionHTML, logListHTML } from './ui/records.js';
+import { playDestroySound } from './ui/sound.js';
 
 const $ = s => document.querySelector(s);
 
@@ -208,6 +209,7 @@ function destroy(g) {
     return;
   }
   destroyObject(id);
+  playDestroySound(id);
   g.classList.add('shake');
   persist();
   setTimeout(renderCity, 380);   // 演出が終わってから描き直す
@@ -352,6 +354,7 @@ function triggerShakeDestroy() {
   const targetObj = unlocked[Math.floor(Math.random() * unlocked.length)];
   
   destroyObject(targetObj.id);
+  playDestroySound(targetObj.id);
 
   // ── スマホに振動をあたえる（例：80ミリ秒間ブルッとさせる） ──
   if (navigator.vibrate) {
