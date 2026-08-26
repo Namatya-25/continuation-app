@@ -147,6 +147,23 @@
   <button class="btn" id="vClose">閉じる</button>
 </div></div>
 
+<!-- ============ 初回チュートリアル・モーダル ============ -->
+<div class="veil on" id="tutorialVeil" style="opacity:0;pointer-events:none;transition:opacity .3s;">
+  <div class="veil-in" style="text-align: left;">
+    <div class="veil-eyebrow">WELCOME TO MY DISASTER</div>
+    <div style="font-size: 22px; font-weight: 900; margin-bottom: 12px;">小さな勉強で、災害を育てよう。</div>
+    <p class="veil-power" style="margin-bottom: 16px;">
+      このアプリは、資格試験などの勉強のハードルを下げるための継続サポートツールです。
+    </p>
+    <div style="font-size: 13px; color: #B7C8D8; line-height: 1.8; margin-bottom: 20px;">
+      ・<b>今日の1歩</b>：毎日1動作の小さな課題をこなして災害を大きくします。<br>
+      ・<b>04:00区切り</b>：深夜の勉強も前日扱いになります。<br>
+      ・<b>目標設定</b>：設定タブから資格や試験日を登録できます。
+    </div>
+    <button class="btn" id="closeTutorial" style="width: 100%;">観測を開始する</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script type="module" src="src/main.js"></script>
