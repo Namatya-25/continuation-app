@@ -5,17 +5,20 @@
 
 import { S } from '../lib/state.js';
 import { tierOf, bandOf } from '../lib/domain.js';
+import { BANDS } from '../data/levels.js';
 
 const CX = 200, CY = 168;   // スコープの中心
 
-/** 現在の状態からスコープのSVG文字列を作る */
+/** tornado画像読み込み */
 export function scopeSVG() {
-  const lv = Math.min(7, Math.max(1, S.disaster.level));
+  const lv = Math.max(1, S.disaster.level);
+  const band = bandOf(lv);
+  const bandNo = BANDS.indexOf(band) + 1;
 
   return `
     <div class="tornado-images">
-      <img class="tornado-image" src="./assets/tornado/${lv}-1.png" alt="" >
-      <img class="tornado-image" src="./assets/tornado/${lv}-2.png" alt="" >
+      <img class="tornado-image" src="./assets/tornado/${bandNo}-1.png" alt="" >
+      <img class="tornado-image" src="./assets/tornado/${bandNo}-2.png" alt="" >
     </div> 
   `;
 }
