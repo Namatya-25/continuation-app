@@ -309,3 +309,77 @@ $('#devReset').addEventListener('click', () => {
     setTimeout(() => toast('設定から目標の資格を登録できます'), 900);
   }
 })();
+
+
+
+/* ============================================================
+   スマホを振る（シェイク）検知による破壊機能
+   ============================================================ */
+let lastX = 0, lastY = 0, lastZ = 0;
+let lastUpdate = 0;
+const SHAKE_THRESHOLD = 25; // 振る強さの閾値
+
+function handleDeviceMotion(e) {
+  const current = e.accelerationIncludingGravity;
+  if (!current) return;
+
+  const currentTime = Date.now();
+  if ((currentTime - lastUpdate) > 100) {
+    const diffTime = currentTime - lastUpdate;
+    lastUpdate = currentTime;
+
+    const speed = Math.abs(current.x + current.y + current.z - lastX - lastY - lastZ) / diffTime * 10000;
+
+    if (speed > SHAKE_THRESHOLD) {
+      triggerShakeDestroy();
+    }
+
+    lastX = current.x;
+    lastY = current.y;
+    lastZ = current.z;
+  }
+}
+
+function triggerShakeDestroy() {
+  const lv = Math.max(1, S.disaster.level);
+  const unlocked = unlockedObjects(lv);
+  
+  if (unlocked.length === 0) {
+    toast('まだ壊せる対象がありません');
+    return;
+  }
+
+  const targetObj = unlocked[Math.floor(Math.random() * unlocked.length)];
+  
+  destroyObject(targetObj.id);
+  
+  const el = document.querySelector(`.obj[data-id="${targetObj.id}"]`);
+  if (el) el.classList.add('shake');
+
+  persist();
+  renderCity();
+  toast(`スマホを振って「${targetObj.label}」を破壊した！`);
+}
+
+function requestMotionPermission() {
+  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+    DeviceMotionEvent.requestPermission()
+      .then(response => {
+        if (response === 'granted') {
+          window.addEventListener('devicemotion', handleDeviceMotion, false);
+          toast('シェイク検知が有効になりました');
+        }
+      })
+      .catch(console.error);
+  } else {
+    window.addEventListener('devicemotion', handleDeviceMotion, false);
+  }
+}
+
+// 画面を最初にタップしたときにセンサーの権限を有効化（iOS対策）
+window.addEventListener('click', () => {
+  if (!window._motionInitialized) {
+    requestMotionPermission();
+    window._motionInitialized = true;
+  }
+}, { once: true });
