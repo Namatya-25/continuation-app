@@ -14,6 +14,10 @@ const HOUSE_BREAK_URL = new URL(
   '../../assets/se/outibukkoware.wav',
   import.meta.url,
 ).href;
+const SHOP_BREAK_URL = new URL(
+  '../../assets/se/syoutenbukkoware.wav',
+  import.meta.url,
+).href;
 
 export function playDestroySound(id) {
   const soundUrl = {
@@ -21,6 +25,7 @@ export function playDestroySound(id) {
     bicycle: BICYCLE_BREAK_URL,
     car: CAR_BREAK_URL,
     house: HOUSE_BREAK_URL,
+    shop: SHOP_BREAK_URL,
   }[id];
   if (!soundUrl) return;
 
