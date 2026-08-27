@@ -16,8 +16,6 @@ import { scopeSVG } from './ui/scope.js';
 import { citySVG, cityLede, tallyHTML } from './ui/city.js';
 import { calendarHTML, collectionHTML, logListHTML } from './ui/records.js';
 import { playDestroySound } from './ui/sound.js';
-// main.js の上のほう（既存の import の近く）に追加
-import { playDestroySound, preloadSounds, unlockAudio } from './ui/sound.js';
 
 const $ = s => document.querySelector(s);
 
@@ -414,13 +412,8 @@ function requestMotionPermission() {
   }
 }
 
-// 起動時に音声を準備
-preloadSounds();
-
 // 画面を最初にタップしたときにセンサーの権限を有効化（iOS対策）
 window.addEventListener('click', () => {
-  unlockAudio(); // ← ここでスマホの音声ブロックを解除！
-  
   if (!window._motionInitialized) {
     requestMotionPermission();
     window._motionInitialized = true;
