@@ -206,7 +206,7 @@ $('#scopeHost').addEventListener('click', e => {
   clearTimeout(face._tapTimer);
   face._tapTimer = setTimeout(() => {
     face.classList.remove('is-tapped');
-  }, 700);
+  }, 800);
 });
 
 document.querySelectorAll('.nav button').forEach(b =>
