@@ -372,19 +372,23 @@ function handleDeviceMotion(e) {
 
 function triggerShakeDestroy() {
   const lv = Math.max(1, S.disaster.level);
-  const unlocked = unlockedObjects(lv);
+  
+  // 1. 解放されているオブジェクトを取得し、Lv順（低い順）に並べ替える
+  const unlocked = unlockedObjects(lv).sort((a, b) => a.lv - b.lv);
   
   if (unlocked.length === 0) {
     toast('まだ壊せる対象がありません');
     return;
   }
 
-  const targetObj = unlocked[Math.floor(Math.random() * unlocked.length)];
+  // 2. 「まだ壊されていない（破壊数が 0 の）」オブジェクトを上から順に探す
+  const targetObj = unlocked.find(o => (S.city.destroyed[o.id] || 0) === 0) 
+                    || unlocked[0]; // もし全部壊されていれば一番最初のオブジェクトにする
   
   destroyObject(targetObj.id);
   playDestroySound(targetObj.id);
 
-  // ── スマホに振動をあたえる（例：80ミリ秒間ブルッとさせる） ──
+  // スマホに振動をあたえる
   if (navigator.vibrate) {
     navigator.vibrate(120);
   }
