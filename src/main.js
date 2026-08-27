@@ -198,6 +198,18 @@ $('#veil').addEventListener('click', e => {
   if (e.target.id === 'veil') $('#veil').classList.remove('on');
 });
 
+$('#scopeHost').addEventListener('click', e => {
+  const face = e.target.closest('.face-images');
+  if (!face) return;
+
+  face.classList.add('is-tapped');
+
+  clearTimeout(face._tapTimer);
+  face._tapTimer = setTimeout(() => {
+    face.classList.remove('is-tapped');
+  }, 800);
+});
+
 document.querySelectorAll('.nav button').forEach(b =>
   b.addEventListener('click', () => go(b.dataset.go)));
 
