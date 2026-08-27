@@ -57,7 +57,7 @@ function renderHome() {
     ? '目標 ' + S.settings.targetQualification : '観測所 —';
 
   // 読み取り値
-  $('#lvNum').textContent   = days > 0 ? bandNo : 0;
+  $('#lvNum').textContent   = "";
   $('#lvName').textContent  = days > 0 ? tier.name : '未発生';
   $('#stNum').textContent   = days;
   $('#stSub').textContent   = S.disaster.condition === 'weakened' ? '災害が弱まっています'
