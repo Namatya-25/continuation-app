@@ -71,7 +71,7 @@ function renderHome() {
     || (S.settings.examDate && logicalToday() >= S.settings.examDate && days >= 5);
   const cta = $('#cta');
   if (done) {
-    $('#ctaLab').textContent = '被害区域を見る';
+    $('#ctaLab').textContent = '災害を起こす';
     $('#ctaSub').textContent = powerText(lv);
     cta.dataset.act = 'city';
   } else if (finalReady) {
