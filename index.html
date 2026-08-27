@@ -36,20 +36,20 @@
 
     <div class="readout">
       <div class="cell">
-        <span class="k">階級</span>
+        <span class="k">災害レベル</span>
         <div class="v"><span class="num" id="lvNum">1</span><small>Lv</small><br><span id="lvName" style="font-size:13.5px">—</span></div>
       </div>
       <div class="cell">
-        <span class="k">連続観測</span>
+        <span class="k">勉強日数</span>
         <div class="v"><span class="num" id="stNum">0</span><small>日</small><br><span id="stSub" style="font-size:12px;font-weight:400;color:var(--ink-2)">—</span></div>
       </div>
       <div class="cell full">
-        <span class="k">次の階級まで</span>
+        <span class="k">次のレベルまで</span>
         <div class="v" id="nextTxt" style="font-size:13.5px">—</div>
         <div class="bar"><span id="nextBar" style="width:0"></span></div>
       </div>
       <div class="cell full">
-        <span class="k">被害想定</span>
+        <span class="k">被害推定</span>
         <div class="v" id="powerTxt" style="font-size:13.5px">—</div>
       </div>
     </div>
@@ -59,22 +59,22 @@
 
   <!-- ============ 被害 (city) ============ -->
   <section class="sec" id="s-city" hidden>
-    <h2 class="head">被害区域</h2>
+    <h2 class="head">災害を起こす</h2>
     <p class="lede" id="cityLede">—</p>
     <div class="city-wrap"><div id="cityHost"></div></div>
     <div class="tally" id="tally"></div>
-    <p class="tiny" style="margin-top:14px">壊した対象は記録に残ります。階級が上がると壊せる対象が増えます。</p>
+    <p class="tiny" style="margin-top:14px">階級が上がると壊せる対象が増えます。</p>
   </section>
 
   <!-- ============ 記録 (records) ============ -->
   <section class="sec" id="s-rec" hidden>
-    <h2 class="head">観測記録</h2>
+    <h2 class="head">勉強記録</h2>
     <p class="lede" id="recLede">—</p>
 
     <div class="stats">
-      <div><span class="k">連続</span><span class="num" id="rSt">0</span></div>
-      <div><span class="k">最長</span><span class="num" id="rMax">0</span></div>
-      <div><span class="k">累計</span><span class="num" id="rTot">0</span></div>
+      <div><span class="k">連続記録</span><span class="num" id="rSt">0</span></div>
+      <div><span class="k">最長連続記録</span><span class="num" id="rMax">0</span></div>
+      <div><span class="k">累計日数</span><span class="num" id="rTot">0</span></div>
     </div>
 
     <div class="card" style="margin-top:12px">
@@ -89,7 +89,7 @@
     <h2 class="head" style="margin-top:22px">解放したもの</h2>
     <div class="tally" id="coll" style="margin-top:10px"></div>
 
-    <h2 class="head" style="margin-top:22px">直近の1歩</h2>
+    <h2 class="head" style="margin-top:22px">直近の記録</h2>
     <div class="card" style="margin-top:10px" id="logList"></div>
   </section>
 
