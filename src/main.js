@@ -60,8 +60,8 @@ function renderHome() {
   $('#lvNum').textContent   = days > 0 ? bandNo : 0;
   $('#lvName').textContent  = days > 0 ? tier.name : '未発生';
   $('#stNum').textContent   = days;
-  $('#stSub').textContent   = S.disaster.condition === 'weakened' ? '弱まっています'
-    : days > 0 ? '観測中' : 'まだ始まっていません';
+  $('#stSub').textContent   = S.disaster.condition === 'weakened' ? '災害が弱まっています'
+    : days > 0 ? '更新中！' : '災害を育てましょう';
   $('#nextTxt').textContent = nx.max ? 'MAX（これ以上は育ちません）'
     : days === 0 ? '最初の1歩で階級1になります' : `あと ${nx.need} 日`;
   $('#nextBar').style.width = (nx.pct * 100) + '%';
@@ -72,7 +72,7 @@ function renderHome() {
     || (S.settings.examDate && logicalToday() >= S.settings.examDate && days >= 5);
   const cta = $('#cta');
   if (done) {
-    $('#ctaLab').textContent = '被害区域を見る';
+    $('#ctaLab').textContent = '災害を起こす';
     $('#ctaSub').textContent = powerText(lv);
     cta.dataset.act = 'city';
   } else if (finalReady) {
