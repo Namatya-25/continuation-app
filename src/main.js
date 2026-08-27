@@ -199,15 +199,30 @@ $('#veil').addEventListener('click', e => {
 });
 
 $('#scopeHost').addEventListener('click', e => {
+
   const face = e.target.closest('.face-images');
+
   if (!face) return;
 
+  const character = face.closest('.tornado-images');
+
   face.classList.add('is-tapped');
+  character.classList.remove('is-bouncing');
+
+  void character.offsetWidth;
+
+  character.classList.add('is-bouncing');
 
   clearTimeout(face._tapTimer);
+
   face._tapTimer = setTimeout(() => {
     face.classList.remove('is-tapped');
   }, 800);
+
+  character.addEventListener('animationend', () => {
+    character.classList.remove('is-bouncing');
+  }, { once:true });
+
 });
 
 document.querySelectorAll('.nav button').forEach(b =>
