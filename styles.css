@@ -171,6 +171,29 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
   }
 }
 
+/* キャラクター全体のタップ反応 */
+.tornado-images.is-bouncing{
+  animation: character-jump .45s ease-out;
+}
+
+@keyframes character-jump{
+  0%{
+    transform:translateY(0);
+  }
+  35%{
+    transform:translateY(-12px);
+  }
+  65%{
+    transform:translateY(0);
+  }
+  82%{
+    transform:translateY(-4px);
+  }
+  100%{
+    transform:translateY(0);
+  }
+}
+
 .scope-slot svg{display:block;width:100%;height:auto}
 .scope-tag{
   position:absolute;top:10px;left:12px;
