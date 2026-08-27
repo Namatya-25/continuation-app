@@ -69,6 +69,15 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 }
 
 /* ---------- scope ---------- */
+
+#scopeMode, /* 育成枠内、旧文字列の非表示 */
+#scopeDate{
+  display:none;
+}
+.scope-tag{
+  display:none;
+}
+
 .scope-slot{
   margin:14px 0 0;
   background:#808080;
