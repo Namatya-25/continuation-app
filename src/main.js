@@ -45,7 +45,7 @@ function renderHome() {
 
   document.documentElement.style.setProperty('--band', band.c);
 
-  // 階級スケール
+  // 災害レベルスケール
   $('#scale').innerHTML = BANDS_HTML(lv, band, days);
   $('#scaleNow').textContent = days > 0 ? band.label : '未観測';
 
@@ -63,7 +63,7 @@ function renderHome() {
   $('#stSub').textContent   = S.disaster.condition === 'weakened' ? '災害が弱まっています'
     : days > 0 ? '更新中！' : '災害を育てましょう';
   $('#nextTxt').textContent = nx.max ? 'MAX（これ以上は育ちません）'
-    : days === 0 ? '最初の1歩で階級1になります' : `あと ${nx.need} 日`;
+    : days === 0 ? '最初の1歩で災害レベル1になります' : `あと ${nx.need} 日`;
   $('#nextBar').style.width = (nx.pct * 100) + '%';
   $('#powerTxt').textContent = powerText(days > 0 ? lv : 0);
 
@@ -90,7 +90,7 @@ function renderHome() {
   document.title = done ? 'MY DISASTER — 観測記録' : '🌀 今日の1歩がまだです';
 }
 
-/** 気象庁カラースケール風の階級バー */
+/** 気象庁カラースケール風の災害レベルバー */
 function BANDS_HTML(lv, band, days) {
   return BANDS.map(b => `<i style="background:${b.c}"
     class="${lv >= b.min ? 'on' : ''} ${b.c === band.c && days > 0 ? 'cur' : ''}"></i>`).join('');
@@ -233,7 +233,7 @@ function destroy(g) {
   const id = g.dataset.id;
   if (g.dataset.locked === '1') {
     const def = OBJECTS.find(o => o.id === id);
-    toast(`階級 ${def.lv} で ${def.label} を壊せるようになります`);
+    toast(`災害レベル ${def.lv} で ${def.label} を壊せるようになります`);
     return;
   }
   destroyObject(id);
