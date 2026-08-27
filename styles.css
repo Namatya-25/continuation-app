@@ -40,17 +40,28 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 .wrap{max-width:560px;margin:0 auto;padding:0 16px 96px}
 
 .masthead{
-  display:flex;align-items:baseline;gap:10px;
-  padding:18px 0 10px;border-bottom:1.5px solid var(--ink);
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  padding:18px 0 10px;
+  border-bottom:1.5px solid var(--ink);
 }
+
 .mark{
-  font-family:var(--mono);font-weight:600;font-size:15px;
+  font-family:var(--mono);
+  font-weight:600;
+  font-size:15px;
   letter-spacing:.14em;
 }
-.mark b{font-weight:600;border-bottom:3px solid var(--band);padding-bottom:1px}
+
+.mark b{
+  font-weight:600;
+  border-bottom:0;
+  padding-bottom:0;
+}
+
 .mast-meta{
-  margin-left:auto;font-family:var(--mono);font-size:11px;
-  color:var(--muted);letter-spacing:.06em;
+  display:none;
 }
 
 /* ---------- warning scale strip ---------- */
