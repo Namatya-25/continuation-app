@@ -22,6 +22,10 @@ const ARCADE_BREAK_URL = new URL(
   '../../assets/se/syoutengaibukkowasare.wav',
   import.meta.url,
 ).href;
+const TOWER_BREAK_URL = new URL(
+  '../../assets/se/birubukkowasare.wav',
+  import.meta.url,
+).href;
 
 export function playDestroySound(id) {
   const soundUrl = {
@@ -31,11 +35,13 @@ export function playDestroySound(id) {
     house: HOUSE_BREAK_URL,
     shop: SHOP_BREAK_URL,
     arcade: ARCADE_BREAK_URL,
+    tower: TOWER_BREAK_URL,
   }[id];
   if (!soundUrl) return;
 
   const audio = new Audio(soundUrl);
   if (id === 'bicycle' || id === 'car') audio.volume = 0.65;
   if (id === 'house') audio.volume = 0.9;
+  if (id === 'tower') audio.volume = 0.9;
   audio.play().catch(() => {});
 }
