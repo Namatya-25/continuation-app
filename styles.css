@@ -288,8 +288,16 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 
 /* ---------- CTA ---------- */
 .cta{
-  display:block;width:100%;margin-top:14px;padding:16px 18px;
-  background:var(--ink);color:#fff;text-align:left;border-radius:var(--radius);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  width:100%;
+  margin-top:14px;
+  padding:16px 18px;
+  background:var(--ink);
+  color:#fff;
+  text-align:center;
+  border-radius:var(--radius);
   border-top:4px solid var(--band);
   transition:transform .12s,box-shadow .12s;
   box-shadow:0 2px 0 rgba(0,0,0,.22);
