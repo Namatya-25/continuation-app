@@ -85,6 +85,8 @@ function renderHome() {
     cta.dataset.act = 'achieve';
   }
 
+  cta.classList.toggle('is-pending', !done);
+
   // ひとこと
   $('#note').innerHTML = S.settings.remindEnabled ? voiceNow(done) : VOICE.today;
   document.title = done ? 'MY DISASTER — 観測記録' : '🌀 今日の1歩がまだです';
