@@ -212,8 +212,7 @@ function destroy(g) {
     return;
   }
   destroyInProgress = true;
-  playDestroySound(id);
-  playDestroyAnimation(id).then(() => {
+  playDestroyAnimation(id, () => playDestroySound(id)).then(() => {
     destroyObject(id);
     persist();
     renderCity();

@@ -5,7 +5,8 @@
 
 import { S } from '../lib/state.js';
 import { OBJECTS, CITY_LAYOUT } from '../data/levels.js';
-import { powerText } from '../lib/domain.js';
+import { powerText, bandOf } from '../lib/domain.js';
+import { BANDS } from '../data/levels.js';
 
 const G     = 200;          // 地面のY座標
 const INK   = '#2A3B4F';
@@ -53,7 +54,7 @@ export function cityLede() {
     : powerText(Math.max(1, S.disaster.level)) + '。壊したい対象をタップしてください。';
 }
 
-export function playDestroyAnimation(id) {
+export function playDestroyAnimation(id, onImpact) {
   const host = document.querySelector('#cityHost');
   const target = host?.querySelector(`.obj[data-id="${id}"]`);
   const layout = CITY_LAYOUT.find(o => o.id === id);
@@ -61,11 +62,16 @@ export function playDestroyAnimation(id) {
   if (!host || !target || !layout || !def) return Promise.resolve();
 
   const center = layout.x + layout.w / 2;
-  const scale = Math.min(1.25, 0.72 + def.lv / 45);
+  const currentLevel = Math.max(1, S.disaster.level);
+  const scale = Math.min(0.82, 0.58 + currentLevel / 100);
+  const tornadoLift = 200 - 200 * scale;
   const startX = center - 190 * scale;
   const endX = center + 190 * scale;
-  const cropX = Math.max(0, center - 110);
-  const cropWidth = Math.min(640 - cropX, 220);
+  const cropWidth = 220;
+  const cropX = center - cropWidth / 2;
+  const targetOffset = 0;
+  const bandNo = BANDS.indexOf(bandOf(currentLevel)) + 1;
+  const fragments = destroyFragments(def.lv, center);
   const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 1050;
   const fx = document.createElement('div');
   fx.className = 'destroy-fx';
@@ -75,36 +81,74 @@ export function playDestroyAnimation(id) {
     <text class="destroy-kicker" x="10" y="10">LEVEL ${def.lv} / ${def.label}</text>
     <svg class="destroy-stage" x="9" y="16" width="82" height="68"
       viewBox="${cropX} 40 ${cropWidth} 184" preserveAspectRatio="xMidYMid meet">
+      <rect class="destroy-sky" x="${cropX}" y="40" width="${cropWidth}" height="160"/>
+      <rect class="destroy-ground-fill" x="${cropX}" y="200" width="${cropWidth}" height="24"/>
       <line x1="${cropX}" y1="200" x2="${cropX + cropWidth}" y2="200" class="destroy-ground"/>
-      <g class="destroy-target-copy">${target.innerHTML}</g>
-      <g class="destroy-tornado" transform="translate(${startX} 0) scale(${scale})">
-        <path d="M-42 72 C-4 84 34 84 54 70 C30 107 18 134 7 173 C-12 148 -24 121 -42 72Z"/>
-        <path d="M-26 80 C-4 91 18 88 37 78 C22 112 12 135 5 159 C-7 133 -16 108 -26 80Z"/>
-        <path class="destroy-wind" d="M-55 91 C-23 103 30 101 68 82"/>
-        <path class="destroy-wind" d="M-52 116 C-20 126 24 124 54 106"/>
+      <g class="destroy-target-copy" transform="translate(${targetOffset} 0)">${target.innerHTML}</g>
+      <g class="destroy-tornado-lift" transform="translate(0 ${tornadoLift})">
+        <g class="destroy-tornado">
+          <image class="destroy-tornado-image tornado-frame-a" href="./assets/tornado/${bandNo}-1.png"
+            x="-100" y="0" width="200" height="200" preserveAspectRatio="xMidYMid meet"/>
+          <image class="destroy-tornado-image tornado-frame-b" href="./assets/tornado/${bandNo}-2.png"
+            x="-100" y="0" width="200" height="200" preserveAspectRatio="xMidYMid meet"/>
+          <image class="destroy-face" href="./assets/face/${bandNo}-m1.png"
+            x="-43" y="44" width="86" height="86" preserveAspectRatio="xMidYMid meet"/>
+        </g>
       </g>
+      <g class="destroy-fragments">${fragments}</g>
     </svg>
   </svg>`;
   document.body.append(fx);
 
   const tornado = fx.querySelector('.destroy-tornado');
   const targetCopy = fx.querySelector('.destroy-target-copy');
+  const fragmentNodes = [...fx.querySelectorAll('.destroy-fragment')];
+  const impactTimer = setTimeout(() => {
+    targetCopy.innerHTML = rubble(layout.x, layout.w);
+    onImpact?.();
+  }, duration * 0.52);
   const tornadoAnimation = tornado.animate([
-    { transform: `translate(${startX}px, 0) scale(${scale})` },
-    { transform: `translate(${endX}px, 0) scale(${scale})` },
-  ], { duration, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'forwards' });
+    { transform: `translateX(${startX}px) scale(${scale})` },
+    { transform: `translateX(${endX}px) scale(${scale})` },
+  ], { duration, easing: 'linear', fill: 'forwards' });
   const targetAnimation = targetCopy.animate([
-    { transform: 'translateX(0)' },
-    { transform: 'translateX(-5px)' },
-    { transform: 'translateX(6px)' },
-    { transform: 'translateX(-3px)' },
-    { transform: 'translateX(0)' },
-  ], { duration: Math.max(1, duration * 0.62), easing: 'ease-in-out', fill: 'forwards' });
+    { transform: `translateX(${targetOffset}px)` },
+    { transform: `translateX(${targetOffset - 5}px)` },
+    { transform: `translateX(${targetOffset + 6}px)` },
+    { transform: `translateX(${targetOffset - 3}px)` },
+    { transform: `translateX(${targetOffset}px)` },
+  ], {
+    duration: Math.max(1, duration * 0.44),
+    delay: duration * 0.38,
+    easing: 'ease-in-out',
+    fill: 'forwards',
+  });
+  fragmentNodes.forEach((fragment, index) => {
+    const direction = index % 2 ? 1 : -1;
+    fragment.animate([
+      { opacity: 0, transform: 'translate(0, 0) rotate(0deg)' },
+      { opacity: 1, transform: `translate(${direction * (8 + index * 2)}px, ${-10 - index * 2}px) rotate(${direction * 55}deg)` },
+      { opacity: 0, transform: `translate(${direction * (18 + index * 3)}px, ${8 + index}px) rotate(${direction * 120}deg)` },
+    ], { duration: duration * 0.42, delay: duration * 0.47 + index * 12, easing: 'cubic-bezier(.12,.7,.28,1)', fill: 'forwards' });
+  });
 
   return Promise.all([tornadoAnimation.finished, targetAnimation.finished])
     .finally(() => {
+      clearTimeout(impactTimer);
       fx.remove();
     });
+}
+
+function destroyFragments(level, center) {
+  const count = Math.min(16, 3 + Math.ceil(level * 0.45));
+  return Array.from({ length: count }, (_, index) => {
+    const x = center - 78 + (index * 37) % 157;
+    const y = 72 + (index * 29) % 120;
+    const size = 2 + (index % 3);
+    const tilt = index % 2 ? 1 : -1;
+    return `<rect class="destroy-fragment" x="${x}" y="${y}" width="${size + 2}" height="${size}"
+      rx=".5" transform="rotate(${tilt * (15 + index * 8)} ${x} ${y})"/>`;
+  }).join('');
 }
 
 /** 破壊数の一覧 */
