@@ -322,6 +322,18 @@ label.f input,label.f select{
 .btn.danger:hover{background:var(--alert);color:#fff}
 .btn.ghost{border-color:var(--line);color:var(--ink-2);font-weight:400}
 
+.sound-settings{display:grid;grid-template-columns:1fr 1fr;gap:0 18px;padding:2px 14px}
+.sound-actions{grid-column:1/-1;display:flex;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.sound-actions .btn{padding:6px 10px;font-size:11px}
+.sound-toggle{display:flex;align-items:center;gap:10px;min-height:42px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink-2)}
+.sound-toggle:last-child{border-bottom:0}
+.sound-toggle input{appearance:none;width:16px;height:16px;margin:0;border:1.5px solid var(--line);border-radius:2px;background:var(--panel-2);display:grid;place-content:center;flex:none}
+.sound-toggle input::before{content:'';width:8px;height:8px;transform:scale(0);background:var(--band);transition:transform .12s ease}
+.sound-toggle input:checked{border-color:var(--band)}
+.sound-toggle input:checked::before{transform:scale(1)}
+.sound-toggle:has(input:checked){color:var(--ink);font-weight:700}
+.sound-toggle:hover{color:var(--ink)}
+
 .switch{display:flex;align-items:center;gap:9px;font-size:13.5px;margin-bottom:12px}
 .switch input{width:17px;height:17px;accent-color:var(--ink)}
 
@@ -367,4 +379,5 @@ label.f input,label.f select{
 @media (max-width:400px){
   .wrap{padding:0 12px 96px}
   .v .num{font-size:22px}
+  .sound-settings{grid-template-columns:1fr;padding:2px 12px}
 }
