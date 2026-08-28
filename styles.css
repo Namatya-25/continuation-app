@@ -313,6 +313,23 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
   border-left:2px solid var(--line);padding-left:10px;
 }
 .note b{color:var(--alert)}
+.cta.is-pending{
+  animation: cta-glow-inner 2s ease-in-out infinite;
+}
+
+@keyframes cta-glow-inner{
+  0%, 100%{
+    box-shadow:
+      0 2px 0 rgba(0,0,0,.22),
+      inset 0 0 0 rgba(0,0,0,0);
+  }
+
+  50%{
+    box-shadow:
+      0 2px 0 rgba(0,0,0,.22),
+      inset 0 0 20px color-mix(in srgb, var(--band) 75%, transparent);
+  }
+}
 
 /* ---------- nav ---------- */
 .nav{
