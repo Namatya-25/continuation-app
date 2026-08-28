@@ -13,7 +13,7 @@ import {
 import { OBJECTS, CITY_LAYOUT, BANDS } from './data/levels.js';
 import { STEPS, VOICE } from './data/copy.js';
 import { scopeSVG } from './ui/scope.js';
-import { citySVG, cityLede, tallyHTML } from './ui/city.js';
+import { citySVG, cityLede, tallyHTML, playDestroyAnimation } from './ui/city.js';
 import { calendarHTML, collectionHTML, logListHTML } from './ui/records.js';
 import { playDestroySound } from './ui/sound.js';
 
@@ -231,18 +231,24 @@ document.querySelectorAll('.nav button').forEach(b =>
   b.addEventListener('click', () => go(b.dataset.go)));
 
 /* ---------- 破壊 ---------- */
+let destroyInProgress = false;
+
 function destroy(g) {
+  if (destroyInProgress) return;
   const id = g.dataset.id;
   if (g.dataset.locked === '1') {
     const def = OBJECTS.find(o => o.id === id);
     toast(`災害レベル ${def.lv} で ${def.label} を壊せるようになります`);
     return;
   }
-  destroyObject(id);
-  playDestroySound(id);
-  g.classList.add('shake');
-  persist();
-  setTimeout(renderCity, 380);   // 演出が終わってから描き直す
+  destroyInProgress = true;
+  playDestroyAnimation(id, () => playDestroySound(id)).then(() => {
+    destroyObject(id);
+    persist();
+    renderCity();
+  }).finally(() => {
+    destroyInProgress = false;
+  });
 }
 
 $('#cityHost').addEventListener('click', e => {
@@ -373,6 +379,7 @@ function handleDeviceMotion(e) {
 }
 
 function triggerShakeDestroy() {
+  if (destroyInProgress) return;
   const lv = Math.max(1, S.disaster.level);
   
   // 1. 解放されているオブジェクトを取得し、Lv順（低い順）に並べ替える
