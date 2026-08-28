@@ -140,7 +140,7 @@ function renderSettings() {
    ============================================================ */
 function reveal(o) {
   const tier = tierOf(o.levelAfter);
-  $('#vEyebrow').textContent = o.final ? 'FINAL DISASTER' : o.leveledUp ? 'LEVEL UP' : 'OBSERVED';
+  $('#vEyebrow').textContent = o.final ? 'FINAL DISASTER' : o.leveledUp ? '　がんばった日数' : '　がんばった日数';
   $('#vLv').textContent      = o.final ? '30' : o.levelAfter;
   $('#vName').textContent    = o.final ? '試験会場、消滅' : tier.name;
   $('#vPower').textContent   = o.final
