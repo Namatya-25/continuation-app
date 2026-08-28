@@ -226,6 +226,12 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
   }
 }
 
+/* 弱ったら半透明 */
+.tornado-images.is-weakened{
+  opacity:.45;
+  transition:opacity .5s ease;
+}
+
 /* キャラクター全体のタップ反応 */
 .tornado-images.is-bouncing{
   animation: character-jump .45s ease-out;
