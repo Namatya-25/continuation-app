@@ -53,6 +53,60 @@ export function cityLede() {
     : powerText(Math.max(1, S.disaster.level)) + '。壊したい対象をタップしてください。';
 }
 
+export function playDestroyAnimation(id) {
+  const host = document.querySelector('#cityHost');
+  const target = host?.querySelector(`.obj[data-id="${id}"]`);
+  const layout = CITY_LAYOUT.find(o => o.id === id);
+  const def = OBJECTS.find(o => o.id === id);
+  if (!host || !target || !layout || !def) return Promise.resolve();
+
+  const center = layout.x + layout.w / 2;
+  const scale = Math.min(1.25, 0.72 + def.lv / 45);
+  const startX = center - 190 * scale;
+  const endX = center + 190 * scale;
+  const cropX = Math.max(0, center - 110);
+  const cropWidth = Math.min(640 - cropX, 220);
+  const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 1050;
+  const fx = document.createElement('div');
+  fx.className = 'destroy-fx';
+  fx.innerHTML = `<svg viewBox="0 0 100 100" aria-hidden="true">
+    <rect class="destroy-backdrop" width="100" height="100"/>
+    <rect class="destroy-frame" x="7" y="13" width="86" height="74"/>
+    <text class="destroy-kicker" x="10" y="10">LEVEL ${def.lv} / ${def.label}</text>
+    <svg class="destroy-stage" x="9" y="16" width="82" height="68"
+      viewBox="${cropX} 40 ${cropWidth} 184" preserveAspectRatio="xMidYMid meet">
+      <line x1="${cropX}" y1="200" x2="${cropX + cropWidth}" y2="200" class="destroy-ground"/>
+      <g class="destroy-target-copy">${target.innerHTML}</g>
+      <g class="destroy-tornado" transform="translate(${startX} 0) scale(${scale})">
+        <path d="M-42 72 C-4 84 34 84 54 70 C30 107 18 134 7 173 C-12 148 -24 121 -42 72Z"/>
+        <path d="M-26 80 C-4 91 18 88 37 78 C22 112 12 135 5 159 C-7 133 -16 108 -26 80Z"/>
+        <path class="destroy-wind" d="M-55 91 C-23 103 30 101 68 82"/>
+        <path class="destroy-wind" d="M-52 116 C-20 126 24 124 54 106"/>
+      </g>
+    </svg>
+  </svg>`;
+  document.body.append(fx);
+
+  const tornado = fx.querySelector('.destroy-tornado');
+  const targetCopy = fx.querySelector('.destroy-target-copy');
+  const tornadoAnimation = tornado.animate([
+    { transform: `translate(${startX}px, 0) scale(${scale})` },
+    { transform: `translate(${endX}px, 0) scale(${scale})` },
+  ], { duration, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'forwards' });
+  const targetAnimation = targetCopy.animate([
+    { transform: 'translateX(0)' },
+    { transform: 'translateX(-5px)' },
+    { transform: 'translateX(6px)' },
+    { transform: 'translateX(-3px)' },
+    { transform: 'translateX(0)' },
+  ], { duration: Math.max(1, duration * 0.62), easing: 'ease-in-out', fill: 'forwards' });
+
+  return Promise.all([tornadoAnimation.finished, targetAnimation.finished])
+    .finally(() => {
+      fx.remove();
+    });
+}
+
 /** 破壊数の一覧 */
 export function tallyHTML() {
   const lv = Math.max(1, S.disaster.level);

@@ -249,6 +249,16 @@ h2.head::after{content:'';flex:1;height:1.5px;background:var(--ink)}
 .obj[data-locked="1"]{cursor:not-allowed}
 .obj:hover .hit{opacity:.16}
 .hit{fill:var(--ink);opacity:0;transition:opacity .15s}
+.destroy-fx{position:fixed;inset:0;z-index:65;background:rgba(8,17,29,.92);pointer-events:none}
+.destroy-fx>svg{display:block;width:100%;height:100%;background:none}
+.destroy-backdrop{fill:transparent}
+.destroy-frame{fill:rgba(220,230,239,.08);stroke:#6F89A5;stroke-width:.35}
+.destroy-kicker{fill:#AFC0D2;font-family:var(--mono);font-size:2.1px;letter-spacing:.14em}
+.destroy-stage{overflow:visible}
+.destroy-ground{stroke:#7E97AF;stroke-width:1.2}
+.destroy-target-copy{filter:brightness(1.9);transform-box:fill-box;transform-origin:center}
+.destroy-tornado{fill:#DCE6EF;stroke:#FFFFFF;stroke-width:2;stroke-linejoin:round;transform-box:fill-box;transform-origin:center}
+.destroy-tornado .destroy-wind{fill:none;stroke:#FFFFFF;stroke-width:3;stroke-linecap:round}
 .shake{animation:shake .5s cubic-bezier(.36,.07,.19,.97)}
 @keyframes shake{
   10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}
