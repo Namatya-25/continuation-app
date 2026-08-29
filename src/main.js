@@ -156,6 +156,16 @@ function reveal(o) {
   $('#veil').classList.add('on');
 }
 
+// ▼ 追加: ビル破壊時のお祝い演出用関数
+function revealTowerCelebration() {
+  $('#vEyebrow').textContent = 'CONGRATULATIONS!';
+  $('#vLv').textContent      = 'MAX';
+  $('#vName').textContent    = 'ビル、完全粉砕';
+  $('#vPower').textContent   = 'おめでとうございます！ついに最大の難所であるビルまで破壊し尽くしました。あなたの圧倒的な継続力が街を飲み込みました！';
+  $('#vUnlockWrap').innerHTML = '<div class="veil-unlock">すべての主要オブジェクトを破壊しました！</div>';
+  $('#veil').classList.add('on');
+}
+
 function toast(text) {
   const el = $('#toast');
   el.textContent = text;
@@ -248,11 +258,21 @@ function destroy(g) {
     toast(`災害レベル ${def.lv} で ${def.label} を壊せるようになります`);
     return;
   }
+
+  // ▼ 追加: ビル（tower）が今回初めて破壊されるかどうかの判定
+  const isFirstTimeTower = (id === 'tower' && (S.city.destroyed['tower'] || 0) === 0);
+
   destroyInProgress = true;
   playDestroyAnimation(id, () => playDestroySound(id)).then(() => {
     destroyObject(id);
     persist();
     renderCity();
+    // ▼ 追加: ビル破壊時の演出を少し遅らせて発火
+    if (isFirstTimeTower) {
+      setTimeout(() => {
+        revealTowerCelebration();
+      }, 400);
+    }
   }).finally(() => {
     destroyInProgress = false;
   });
