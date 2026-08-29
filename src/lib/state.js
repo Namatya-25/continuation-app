@@ -12,6 +12,7 @@ export function blank() {
     settings: {
       targetQualification: '',
       examDate: '',
+      examStartDate: '', // カウントダウン開始日
       remindTime: '20:00',
       remindEnabled: true,
       destroySounds: {},

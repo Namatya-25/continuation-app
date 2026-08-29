@@ -7,7 +7,7 @@ import { S, setS, blank } from './lib/state.js';
 import { Storage } from './lib/storage.js';
 import { logicalToday, now, shiftDate } from './lib/date.js';
 import {
-  levelOf, tierOf, bandOf, powerText, nextInfo,
+  levelOf, tierOf, bandOf, powerText, nextInfo, examInfo,
   todayStep, applyDecay, achieveToday, destroyObject, unlockedObjects,
 } from './lib/domain.js';
 import { OBJECTS, CITY_LAYOUT, BANDS } from './data/levels.js';
@@ -47,7 +47,7 @@ function renderHome() {
   const tier  = tierOf(lv);
   const band  = bandOf(lv);
   const bandNo = BANDS.indexOf(band) + 1;
-  const nx    = nextInfo(days);
+  const exam = examInfo();
   const done  = S.streak.lastAchievedOn === logicalToday();
 
   document.documentElement.style.setProperty('--band', band.c);
@@ -69,9 +69,18 @@ function renderHome() {
   $('#stNum').textContent   = days;
   $('#stSub').textContent   = S.disaster.condition === 'weakened' ? '災害が弱まっています'
     : days > 0 ? '更新中！' : '災害を育てましょう';
-  $('#nextTxt').textContent = nx.max ? 'MAX（これ以上は育ちません）'
-    : days === 0 ? '最初の1歩で災害レベル1になります' : `あと ${nx.need} 日`;
-  $('#nextBar').style.width = (nx.pct * 100) + '%';
+  if (!exam.set) {
+    $('#nextTxt').textContent = '試験日が未設定';
+    $('#nextBar').style.width = '0%';
+
+  } else if (exam.finished) {
+    $('#nextTxt').textContent = '試験当日です！';
+    $('#nextBar').style.width = '100%';
+
+  } else {
+    $('#nextTxt').textContent = `試験まであと ${exam.daysLeft} 日`;
+    $('#nextBar').style.width = (exam.pct * 100) + '%';
+  }
   $('#powerTxt').textContent = powerText(days > 0 ? lv : 0);
 
   // CTA
@@ -283,7 +292,17 @@ $('#cityHost').addEventListener('keydown', e => {
 /* ---------- 設定 ---------- */
 $('#saveSet').addEventListener('click', () => {
   S.settings.targetQualification = $('#fQual').value.trim();
-  S.settings.examDate  = $('#fExam').value;
+  const newExamDate = $('#fExam').value;
+
+// 試験日を初めて設定した場合、または試験日を変更した場合
+if (
+  newExamDate !== S.settings.examDate ||
+  !S.settings.examStartDate
+) {
+  S.settings.examStartDate = logicalToday();
+}
+
+S.settings.examDate = newExamDate;
   S.settings.remindTime = $('#fTime').value || '20:00';
   S.settings.remindEnabled = $('#fRemind').checked;
   S.settings.destroySounds = Object.fromEntries(DESTROY_SOUND_IDS.map(id => [

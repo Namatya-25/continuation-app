@@ -37,9 +37,62 @@ export function powerText(lv) {
   return u[u.length - 1].label + 'まで破壊できます';
 }
 
-export function nextInfo(days) {
+export function nextInfo(days) { // 旧レベルバー（現在は使用されていない）
   if (days >= 30) return { max: true, need: 0, pct: 1 };
   return { max: false, need: 1, pct: 0 };
+}
+
+export function examInfo() {
+  const examDate = S.settings.examDate;
+  const startDate = S.settings.examStartDate;
+
+  // 試験日未設定
+  if (!examDate) {
+    return {
+      set: false,
+      daysLeft: null,
+      pct: 0,
+      finished: false,
+    };
+  }
+
+  const today = logicalToday();
+
+  const msPerDay = 24 * 60 * 60 * 1000;
+
+  const todayTime = new Date(today + 'T00:00:00').getTime();
+  const examTime = new Date(examDate + 'T00:00:00').getTime();
+
+  const daysLeft = Math.ceil(
+    (examTime - todayTime) / msPerDay
+  );
+
+  // 開始日がない場合はバーを安全に0%から始める
+  const startTime = startDate
+    ? new Date(startDate + 'T00:00:00').getTime()
+    : todayTime;
+
+  const totalDays = Math.max(
+    1,
+    Math.ceil((examTime - startTime) / msPerDay)
+  );
+
+  const passedDays = Math.max(
+    0,
+    Math.ceil((todayTime - startTime) / msPerDay)
+  );
+
+  const pct = Math.max(
+    0,
+    Math.min(1, passedDays / totalDays)
+  );
+
+  return {
+    set: true,
+    daysLeft,
+    pct,
+    finished: daysLeft <= 0,
+  };
 }
 
 export function todayStep() {
