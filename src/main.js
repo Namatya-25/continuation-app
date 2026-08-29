@@ -87,21 +87,28 @@ function renderHome() {
   if (!exam.set) {
     $('#nextTxt').textContent = '試験日が未設定';
     $('#nextBar').style.width = '0%';
-
   } else if (exam.finished) {
     $('#nextTxt').textContent = '試験当日です！';
     $('#nextBar').style.width = '100%';
-
   } else {
     $('#nextTxt').textContent = `試験まであと ${exam.daysLeft} 日`;
     $('#nextBar').style.width = (exam.pct * 100) + '%';
   }
   $('#powerTxt').textContent = powerText(days > 0 ? lv : 0);
 
+  // ▼ 入力ボックスの表示切り替え
+  const inputBox = $('#customInputBox');
+  const cta = $('#cta');
+  
+  if (inputBox) {
+    inputBox.style.display = S.flags.isInputtingStep ? 'block' : 'none';
+    cta.style.display = S.flags.isInputtingStep ? 'none' : 'flex'; // 入力中は元のメインボタンを隠す
+  }
+
   // CTA
   const finalReady = S.flags.finalDisasterUnlocked
     || (S.settings.examDate && logicalToday() >= S.settings.examDate && days >= 5);
-  const cta = $('#cta');
+
   if (done) {
     $('#ctaLab').textContent = '災害を起こす';
     $('#ctaSub').textContent = powerText(lv);
@@ -270,6 +277,34 @@ function go(name) {
    イベント
    ============================================================ */
 $('#cta').addEventListener('click', e => {
+  // ▼ 1. 「この内容で記録する」ボタンが押された場合
+  if (e.target && e.target.id === 'submitCustomStep') {
+    e.stopPropagation();
+    const input = $('#customStepInput');
+    const text = input ? input.value : '';
+    
+    const r = achieveToday(text);
+    if (r.already) { toast('今日はもう記録しました'); return; }
+    
+    S.flags.isInputtingStep = false;
+    persist(); render(); reveal(r);
+    return;
+  }
+
+  // ▼ 2. 「やめる」ボタンが押された場合
+  if (e.target && e.target.id === 'cancelCustomStep') {
+    e.stopPropagation();
+    S.flags.isInputtingStep = false;
+    render();
+    return;
+  }
+
+  // ▼ 3. テキストエリア自体がクリックされたときは何もしない
+  if (e.target && (e.target.id === 'customStepInput' || e.target.closest('textarea'))) {
+    return;
+  }
+
+  // ▼ 4. 通常のボタン操作
   const act = e.currentTarget.dataset.act;
 
   if (act === 'city') { go('city'); return; }
@@ -282,9 +317,38 @@ $('#cta').addEventListener('click', e => {
     return;
   }
 
-  const r = achieveToday();
-  if (r.already) { toast('今日はもう記録しました'); return; }
-  persist(); render(); reveal(r);
+  // 入力モードへ移行
+  if (!S.flags.isInputtingStep) {
+    S.flags.isInputtingStep = true;
+    render();
+    
+    setTimeout(() => {
+      const input = $('#customStepInput');
+      if (input) {
+        input.value = todayStep();
+        input.focus();
+      }
+    }, 50);
+  }
+});
+
+// ▼ 【追加】入力ボックス内のボタン用イベント
+document.addEventListener('click', e => {
+  if (e.target && e.target.id === 'submitCustomStep') {
+    const input = $('#customStepInput');
+    const text = input ? input.value : '';
+    
+    const r = achieveToday(text);
+    if (r.already) { toast('今日はもう記録しました'); return; }
+    
+    S.flags.isInputtingStep = false;
+    persist(); render(); reveal(r);
+  }
+
+  if (e.target && e.target.id === 'cancelCustomStep') {
+    S.flags.isInputtingStep = false;
+    render();
+  }
 });
 
 $('#vClose').addEventListener('click', () => $('#veil').classList.remove('on'));

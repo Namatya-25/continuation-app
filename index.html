@@ -23,6 +23,15 @@
       <span class="sub" id="ctaSub">—</span>
     </button>
 
+    <div id="customInputBox" class="card" style="display:none; margin-top:14px; background:var(--ink); color:#fff; border-color:var(--ink);">
+      <div style="font-size:13px; font-weight:700; margin-bottom:6px;">今日取り組んだこと・一言メモ</div>
+      <textarea id="customStepInput" placeholder="例: 過去問を2問解いた、参考書を読んだ" style="width:100%; padding:8px; border-radius:2px; border:1.5px solid var(--line); color:var(--ink); background:#fff; font-size:14px; resize:vertical; min-height:60px;"></textarea>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button type="button" id="submitCustomStep" class="btn" style="flex:1; background:#fff; color:var(--ink); border:none; cursor:pointer;">この内容で記録する</button>
+        <button type="button" id="cancelCustomStep" class="btn" style="flex:1; background:transparent; color:#fff; border-color:rgba(255,255,255,0.4); cursor:pointer;">やめる</button>
+      </div>
+    </div>
+
     <p class="note" id="note">—</p>
 
     <div class="scope-slot">
