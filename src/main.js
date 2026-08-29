@@ -5,7 +5,7 @@
 
 import { S, setS, blank } from './lib/state.js';
 import { Storage } from './lib/storage.js';
-import { logicalToday, now, shiftDate, daysBetween } from './lib/date.js';
+import { logicalToday, now, shiftDate } from './lib/date.js';
 import {
   levelOf, tierOf, bandOf, powerText, nextInfo,
   todayStep, applyDecay, achieveToday, destroyObject, unlockedObjects, syncStreakFromLogs,
@@ -48,19 +48,6 @@ function persist() { Storage.save(S, toast); }
 /* ============================================================
    画面更新
    ============================================================ */
-function examInfo() {
-  if (!S.settings.examDate) return { set: false, finished: false, daysLeft: 0, pct: 0 };
-
-  const today = logicalToday();
-  const start = S.settings.examStartDate || S.settings.examDate;
-  const total = Math.max(1, daysBetween(start, S.settings.examDate));
-  const daysLeft = Math.max(0, daysBetween(today, S.settings.examDate));
-  const finished = today >= S.settings.examDate;
-  const pct = finished ? 1 : Math.min(1, 1 - (daysLeft / total));
-
-  return { set: true, finished, daysLeft, pct };
-}
-
 function render() {
   syncStreakFromLogs();
   renderHome();
