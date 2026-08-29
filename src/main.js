@@ -8,7 +8,7 @@ import { Storage } from './lib/storage.js';
 import { logicalToday, now, shiftDate } from './lib/date.js';
 import {
   levelOf, tierOf, bandOf, powerText, nextInfo,
-  todayStep, applyDecay, achieveToday, destroyObject, unlockedObjects,
+  todayStep, applyDecay, achieveToday, destroyObject, unlockedObjects, syncStreakFromLogs,
 } from './lib/domain.js';
 import { OBJECTS, CITY_LAYOUT, BANDS } from './data/levels.js';
 import { STEPS, VOICE } from './data/copy.js';
@@ -35,6 +35,7 @@ function persist() { Storage.save(S, toast); }
    画面更新
    ============================================================ */
 function render() {
+  syncStreakFromLogs();
   renderHome();
   renderCity();
   renderRecords();
