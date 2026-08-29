@@ -14,6 +14,7 @@ export function blank() {
       examDate: '',
       remindTime: '20:00',
       remindEnabled: true,
+      destroySounds: {},
     },
     disaster:  { type: 'tornado', level: 1, exp: 0, condition: 'normal' },
     streak:    { currentDays: 0, longestDays: 0, lastAchievedOn: null },

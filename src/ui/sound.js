@@ -27,21 +27,27 @@ const TOWER_BREAK_URL = new URL(
   import.meta.url,
 ).href;
 
-export function playDestroySound(id) {
-  const soundUrl = {
-    signboard: SIGNBOARD_BREAK_URL,
-    bicycle: BICYCLE_BREAK_URL,
-    car: CAR_BREAK_URL,
-    house: HOUSE_BREAK_URL,
-    shop: SHOP_BREAK_URL,
-    arcade: ARCADE_BREAK_URL,
-    tower: TOWER_BREAK_URL,
-  }[id];
-  if (!soundUrl) return;
+export const DESTROY_SOUND_IDS = [
+  'signboard', 'bicycle', 'car', 'house', 'shop', 'arcade', 'tower',
+];
+
+const DEFAULT_VOLUMES = {
+  signboard: 1, bicycle: 0.65, car: 0.65, house: 0.9,
+  shop: 1, arcade: 1, tower: 0.9,
+};
+
+const SOUND_URLS = {
+  signboard: SIGNBOARD_BREAK_URL, bicycle: BICYCLE_BREAK_URL,
+  car: CAR_BREAK_URL, house: HOUSE_BREAK_URL, shop: SHOP_BREAK_URL,
+  arcade: ARCADE_BREAK_URL, tower: TOWER_BREAK_URL,
+};
+
+export function playDestroySound(id, volumes = {}) {
+  const soundUrl = SOUND_URLS[id];
+  if (!soundUrl || volumes[id] === false) return;
 
   const audio = new Audio(soundUrl);
-  if (id === 'bicycle' || id === 'car') audio.volume = 0.65;
-  if (id === 'house') audio.volume = 0.9;
-  if (id === 'tower') audio.volume = 0.9;
+  audio.volume = DEFAULT_VOLUMES[id];
   audio.play().catch(() => {});
 }
+

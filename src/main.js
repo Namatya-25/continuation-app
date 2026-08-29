@@ -15,9 +15,16 @@ import { STEPS, VOICE } from './data/copy.js';
 import { scopeSVG } from './ui/scope.js';
 import { citySVG, cityLede, tallyHTML, playDestroyAnimation } from './ui/city.js';
 import { calendarHTML, collectionHTML, logListHTML } from './ui/records.js';
-import { playDestroySound } from './ui/sound.js';
+import { DESTROY_SOUND_IDS, playDestroySound } from './ui/sound.js';
 
 const $ = s => document.querySelector(s);
+
+function setDestroySounds(enabled) {
+  DESTROY_SOUND_IDS.forEach(id => {
+    const input = $(`#sound-${id}`);
+    if (input) input.checked = enabled;
+  });
+}
 
 /* ============================================================
    保存
@@ -134,6 +141,10 @@ function renderSettings() {
   $('#fExam').value     = S.settings.examDate || '';
   $('#fTime').value     = S.settings.remindTime || '20:00';
   $('#fRemind').checked = !!S.settings.remindEnabled;
+  DESTROY_SOUND_IDS.forEach(id => {
+    const input = $(`#sound-${id}`);
+    if (input) input.checked = S.settings.destroySounds?.[id] !== false;
+  });
   $('#devDate').textContent = logicalToday() + (S.dev.offsetDays ? ` (+${S.dev.offsetDays}日)` : '');
 }
 
@@ -249,7 +260,7 @@ function destroy(g) {
     return;
   }
   destroyInProgress = true;
-  playDestroyAnimation(id, () => playDestroySound(id)).then(() => {
+  playDestroyAnimation(id, () => playDestroySound(id, S.settings.destroySounds)).then(() => {
     destroyObject(id);
     persist();
     renderCity();
@@ -275,9 +286,15 @@ $('#saveSet').addEventListener('click', () => {
   S.settings.examDate  = $('#fExam').value;
   S.settings.remindTime = $('#fTime').value || '20:00';
   S.settings.remindEnabled = $('#fRemind').checked;
+  S.settings.destroySounds = Object.fromEntries(DESTROY_SOUND_IDS.map(id => [
+    id, $('#sound-' + id).checked,
+  ]));
   S.flags.onboardingDone = true;
   persist(); render(); toast('設定を保存しました');
 });
+
+$('#soundsOn').addEventListener('click', () => setDestroySounds(true));
+$('#soundsOff').addEventListener('click', () => setDestroySounds(false));
 
 $('#doExport').addEventListener('click', () => {
   Storage.exportFile(S, logicalToday());
@@ -402,7 +419,7 @@ function triggerShakeDestroy() {
                     || unlocked[0]; // もし全部壊されていれば一番最初のオブジェクトにする
   
   destroyObject(targetObj.id);
-  playDestroySound(targetObj.id);
+  playDestroySound(targetObj.id, S.settings.destroySounds);
 
   // スマホに振動をあたえる
   if (navigator.vibrate) {
