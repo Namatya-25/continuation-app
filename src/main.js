@@ -209,6 +209,13 @@ $('#scopeHost').addEventListener('click', e => {
   const character = face.closest('.tornado-images');
 
   face.classList.add('is-tapped');
+  if (!S.flags.tapHintSeen) {
+  S.flags.tapHintSeen = true;
+  persist();
+
+  const hint = face.querySelector('.tap-hint');
+  if (hint) hint.remove();
+  }
   character.classList.remove('is-bouncing');
 
   void character.offsetWidth;
