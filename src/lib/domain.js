@@ -37,7 +37,7 @@ export function powerText(lv) {
   return u[u.length - 1].label + 'まで破壊できます';
 }
 
-export function nextInfo(days) {
+export function nextInfo(days) { // 旧レベルバー（現在は使用されていない）
   if (days >= 30) return { max: true, need: 0, pct: 1 };
   return { max: false, need: 1, pct: 0 };
 }

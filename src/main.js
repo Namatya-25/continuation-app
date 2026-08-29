@@ -48,7 +48,7 @@ function renderHome() {
   const tier  = tierOf(lv);
   const band  = bandOf(lv);
   const bandNo = BANDS.indexOf(band) + 1;
-  const nx    = nextInfo(days);
+  const exam = examInfo();
   const done  = S.streak.lastAchievedOn === logicalToday();
 
   document.documentElement.style.setProperty('--band', band.c);
@@ -70,9 +70,18 @@ function renderHome() {
   $('#stNum').textContent   = days;
   $('#stSub').textContent   = S.disaster.condition === 'weakened' ? '災害が弱まっています'
     : days > 0 ? '更新中！' : '災害を育てましょう';
-  $('#nextTxt').textContent = nx.max ? 'MAX（これ以上は育ちません）'
-    : days === 0 ? '最初の1歩で災害レベル1になります' : `あと ${nx.need} 日`;
-  $('#nextBar').style.width = (nx.pct * 100) + '%';
+  if (!exam.set) {
+    $('#nextTxt').textContent = '試験日が未設定';
+    $('#nextBar').style.width = '0%';
+
+  } else if (exam.finished) {
+    $('#nextTxt').textContent = '試験当日です！';
+    $('#nextBar').style.width = '100%';
+
+  } else {
+    $('#nextTxt').textContent = `試験まであと ${exam.daysLeft} 日`;
+    $('#nextBar').style.width = (exam.pct * 100) + '%';
+  }
   $('#powerTxt').textContent = powerText(days > 0 ? lv : 0);
 
   // CTA
@@ -168,6 +177,63 @@ function reveal(o) {
   $('#veil').classList.add('on');
 }
 
+// ▼ 追加: くす玉が割れて紙吹雪が舞う派手なお祝い演出
+function revealTowerCelebration() {
+  const existing = document.querySelector('#kusudamaFx');
+  if (existing) existing.remove();
+
+  const fx = document.createElement('div');
+  fx.id = 'kusudamaFx';
+  fx.className = 'kusudama-overlay';
+  
+  // 紙吹雪（コンフェッティ）をランダムに多数生成
+  let confettiHTML = '';
+  for (let i = 0; i < 45; i++) {
+    const x = Math.random() * 100;
+    const y = Math.random() * 40;
+    const delay = Math.random() * 0.6;
+    const duration = 1.2 + Math.random() * 1.5;
+    const deg = Math.random() * 360;
+    const color = ['#FF2800', '#FAF500', '#218CFF', '#0041FF', '#FF9900', '#FFFFFF'][Math.floor(Math.random() * 6)];
+    confettiHTML += `<div class="confetti" style="left:${x}%; top:${y}%; background:${color}; animation-delay:${delay}s; animation-duration:${duration}s; transform:rotate(${deg}deg);"></div>`;
+  }
+
+  fx.innerHTML = `
+    <div class="kusudama-container">
+      ${confettiHTML}
+      <div class="kusudama-ball-wrap">
+        <!-- くす玉本体 -->
+        <svg class="kusudama-ball" viewBox="0 0 200 200" width="160" height="160">
+          <circle cx="100" cy="100" r="80" fill="#B40068" stroke="#2A3B4F" stroke-width="4"/>
+          <path d="M20 100 Q100 60 180 100 Q100 140 20 100 Z" fill="#FF2800" stroke="#2A3B4F" stroke-width="3"/>
+          <path d="M100 20 Q60 100 100 180 Q140 100 100 20 Z" fill="#FAF500" stroke="#2A3B4F" stroke-width="3"/>
+          <circle cx="100" cy="100" r="24" fill="#FF9900" stroke="#2A3B4F" stroke-width="3"/>
+          <!-- 垂れ幕・リボン -->
+          <path d="M80 170 Q70 210 50 230" fill="none" stroke="#FF2800" stroke-width="6" stroke-linecap="round"/>
+          <path d="M120 170 Q130 210 150 230" fill="none" stroke="#FF2800" stroke-width="6" stroke-linecap="round"/>
+          <polygon points="100,174 90,210 110,210" fill="#FF2800" stroke="#2A3B4F" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="kusudama-modal">
+        <div class="kusudama-kicker">CONGRATULATIONS!</div>
+        <div class="kusudama-title">ビル、完全粉砕！</div>
+        <div class="kusudama-desc">おめでとうございます！ついに最大の難所であるビルまで破壊し尽くしました。あなたの圧倒的な継続力が街を飲み込みました！</div>
+        <button class="kusudama-close" id="closeKusudama">閉じる</button>
+      </div>
+    </div>
+  `;
+
+  document.body.append(fx);
+
+  // 閉じるボタンのイベント
+  document.getElementById('closeKusudama').addEventListener('click', () => {
+    fx.remove();
+  });
+  fx.addEventListener('click', (e) => {
+    if (e.target.id === 'kusudamaFx') fx.remove();
+  });
+}
+
 function toast(text) {
   const el = $('#toast');
   el.textContent = text;
@@ -260,11 +326,21 @@ function destroy(g) {
     toast(`災害レベル ${def.lv} で ${def.label} を壊せるようになります`);
     return;
   }
+
+  // ▼ 追加: ビル（tower）が今回初めて破壊されるかどうかの判定
+  const isFirstTimeTower = (id === 'tower' && (S.city.destroyed['tower'] || 0) === 0);
+
   destroyInProgress = true;
   playDestroyAnimation(id, () => playDestroySound(id, S.settings.destroySounds)).then(() => {
     destroyObject(id);
     persist();
     renderCity();
+    // ▼ ここでビル破壊時のくす玉演出を発火
+    if (isFirstTimeTower) {
+      setTimeout(() => {
+        revealTowerCelebration();
+      }, 400);
+    }
   }).finally(() => {
     destroyInProgress = false;
   });
@@ -284,7 +360,17 @@ $('#cityHost').addEventListener('keydown', e => {
 /* ---------- 設定 ---------- */
 $('#saveSet').addEventListener('click', () => {
   S.settings.targetQualification = $('#fQual').value.trim();
-  S.settings.examDate  = $('#fExam').value;
+  const newExamDate = $('#fExam').value;
+
+// 試験日を初めて設定した場合、または試験日を変更した場合
+if (
+  newExamDate !== S.settings.examDate ||
+  !S.settings.examStartDate
+) {
+  S.settings.examStartDate = logicalToday();
+}
+
+S.settings.examDate = newExamDate;
   S.settings.remindTime = $('#fTime').value || '20:00';
   S.settings.remindEnabled = $('#fRemind').checked;
   S.settings.destroySounds = Object.fromEntries(DESTROY_SOUND_IDS.map(id => [
