@@ -7,7 +7,7 @@ import { S, setS, blank } from './lib/state.js';
 import { Storage } from './lib/storage.js';
 import { logicalToday, now, shiftDate } from './lib/date.js';
 import {
-  levelOf, tierOf, bandOf, powerText, nextInfo,
+  levelOf, tierOf, bandOf, powerText, nextInfo, examInfo,
   todayStep, applyDecay, achieveToday, destroyObject, unlockedObjects,
 } from './lib/domain.js';
 import { OBJECTS, CITY_LAYOUT, BANDS } from './data/levels.js';
@@ -15,9 +15,16 @@ import { STEPS, VOICE } from './data/copy.js';
 import { scopeSVG } from './ui/scope.js';
 import { citySVG, cityLede, tallyHTML, playDestroyAnimation } from './ui/city.js';
 import { calendarHTML, collectionHTML, logListHTML } from './ui/records.js';
-import { playDestroySound } from './ui/sound.js';
+import { DESTROY_SOUND_IDS, playDestroySound } from './ui/sound.js';
 
 const $ = s => document.querySelector(s);
+
+function setDestroySounds(enabled) {
+  DESTROY_SOUND_IDS.forEach(id => {
+    const input = $(`#sound-${id}`);
+    if (input) input.checked = enabled;
+  });
+}
 
 /* ============================================================
    保存
@@ -40,7 +47,7 @@ function renderHome() {
   const tier  = tierOf(lv);
   const band  = bandOf(lv);
   const bandNo = BANDS.indexOf(band) + 1;
-  const nx    = nextInfo(days);
+  const exam = examInfo();
   const done  = S.streak.lastAchievedOn === logicalToday();
 
   document.documentElement.style.setProperty('--band', band.c);
@@ -62,9 +69,18 @@ function renderHome() {
   $('#stNum').textContent   = days;
   $('#stSub').textContent   = S.disaster.condition === 'weakened' ? '災害が弱まっています'
     : days > 0 ? '更新中！' : '災害を育てましょう';
-  $('#nextTxt').textContent = nx.max ? 'MAX（これ以上は育ちません）'
-    : days === 0 ? '最初の1歩で災害レベル1になります' : `あと ${nx.need} 日`;
-  $('#nextBar').style.width = (nx.pct * 100) + '%';
+  if (!exam.set) {
+    $('#nextTxt').textContent = '試験日が未設定';
+    $('#nextBar').style.width = '0%';
+
+  } else if (exam.finished) {
+    $('#nextTxt').textContent = '試験当日です！';
+    $('#nextBar').style.width = '100%';
+
+  } else {
+    $('#nextTxt').textContent = `試験まであと ${exam.daysLeft} 日`;
+    $('#nextBar').style.width = (exam.pct * 100) + '%';
+  }
   $('#powerTxt').textContent = powerText(days > 0 ? lv : 0);
 
   // CTA
@@ -134,6 +150,10 @@ function renderSettings() {
   $('#fExam').value     = S.settings.examDate || '';
   $('#fTime').value     = S.settings.remindTime || '20:00';
   $('#fRemind').checked = !!S.settings.remindEnabled;
+  DESTROY_SOUND_IDS.forEach(id => {
+    const input = $(`#sound-${id}`);
+    if (input) input.checked = S.settings.destroySounds?.[id] !== false;
+  });
   $('#devDate').textContent = logicalToday() + (S.dev.offsetDays ? ` (+${S.dev.offsetDays}日)` : '');
 }
 
@@ -310,7 +330,7 @@ function destroy(g) {
   const isFirstTimeTower = (id === 'tower' && (S.city.destroyed['tower'] || 0) === 0);
 
   destroyInProgress = true;
-  playDestroyAnimation(id, () => playDestroySound(id)).then(() => {
+  playDestroyAnimation(id, () => playDestroySound(id, S.settings.destroySounds)).then(() => {
     destroyObject(id);
     persist();
     renderCity();
@@ -339,12 +359,28 @@ $('#cityHost').addEventListener('keydown', e => {
 /* ---------- 設定 ---------- */
 $('#saveSet').addEventListener('click', () => {
   S.settings.targetQualification = $('#fQual').value.trim();
-  S.settings.examDate  = $('#fExam').value;
+  const newExamDate = $('#fExam').value;
+
+// 試験日を初めて設定した場合、または試験日を変更した場合
+if (
+  newExamDate !== S.settings.examDate ||
+  !S.settings.examStartDate
+) {
+  S.settings.examStartDate = logicalToday();
+}
+
+S.settings.examDate = newExamDate;
   S.settings.remindTime = $('#fTime').value || '20:00';
   S.settings.remindEnabled = $('#fRemind').checked;
+  S.settings.destroySounds = Object.fromEntries(DESTROY_SOUND_IDS.map(id => [
+    id, $('#sound-' + id).checked,
+  ]));
   S.flags.onboardingDone = true;
   persist(); render(); toast('設定を保存しました');
 });
+
+$('#soundsOn').addEventListener('click', () => setDestroySounds(true));
+$('#soundsOff').addEventListener('click', () => setDestroySounds(false));
 
 $('#doExport').addEventListener('click', () => {
   Storage.exportFile(S, logicalToday());
@@ -469,7 +505,7 @@ function triggerShakeDestroy() {
                     || unlocked[0]; // もし全部壊されていれば一番最初のオブジェクトにする
   
   destroyObject(targetObj.id);
-  playDestroySound(targetObj.id);
+  playDestroySound(targetObj.id, S.settings.destroySounds);
 
   // スマホに振動をあたえる
   if (navigator.vibrate) {
