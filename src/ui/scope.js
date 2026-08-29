@@ -11,21 +11,36 @@ const CX = 200, CY = 168;   // スコープの中心
 
 /** tornado画像読み込み */
 export function scopeSVG() {
+  const days = S.streak.currentDays;
+
+  // 0日目は卵
+  if (days === 0) {
+    return `
+      <div class="tornado-images">
+        <div class="face-images egg-state">
+          <img class="egg-image" src="./assets/face/egg.png" alt="">
+        </div>
+      </div>
+    `;
+  }
+
+  // 1日目以降は災害を表示
   const lv = Math.max(1, S.disaster.level);
   const band = bandOf(lv);
   const bandNo = BANDS.indexOf(band) + 1;
 
   return `
-    <div class="tornado-images">
+    <div class="tornado-images ${S.disaster.condition === 'weakened' ? 'is-weakened' : ''}">
       <img class="tornado-image" src="./assets/tornado/${bandNo}-1.png" alt="" >
       <img class="tornado-image" src="./assets/tornado/${bandNo}-2.png" alt="" >
 
       <div class="face-images">
-      <img class="face-image face-m1" src="./assets/face/${bandNo}-m1.png" alt="" >
-      <img class="face-image face-m2" src="./assets/face/${bandNo}-m2.png" alt="" >
-      <img class="face-image face-m3" src="./assets/face/${bandNo}-m3.png" alt="" >
+        <img class="face-image face-m1" src="./assets/face/${bandNo}-m1.png" alt="" >
+        <img class="face-image face-m2" src="./assets/face/${bandNo}-m2.png" alt="" >
+        <img class="face-image face-m3" src="./assets/face/${bandNo}-m3.png" alt="" >
+        ${!S.flags.tapHintSeen ? '<div class="tap-hint">タップで反応</div>' : ''}
       </div>
-    </div> 
+    </div>
   `;
 }
 

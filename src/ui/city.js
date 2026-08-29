@@ -30,7 +30,7 @@ export function citySVG() {
       <rect class="hit" x="${o.x - 6}" y="88" width="${o.w + 12}" height="118" rx="2"/>
       ${drawObject(o.id, o.x, o.w, broken)}
       ${locked ? `<text x="${o.x + o.w / 2}" y="120" text-anchor="middle" fill="#5D7186"
-        font-family="'IBM Plex Mono',monospace" font-size="11">Lv${def.lv}</text>` : ''}
+        font-family="'IBM Plex Mono',monospace" font-size="11">${def.lv}日</text>` : ''}
     </g>`;
   }).join('');
 
@@ -157,7 +157,7 @@ export function tallyHTML() {
   return OBJECTS.map(o => {
     const n = S.city.destroyed[o.id] || 0;
     const locked = lv < o.lv;
-    return `<span class="chip ${locked ? 'locked' : ''}">${o.label} <b>${locked ? 'Lv' + o.lv : n}</b></span>`;
+    return `<span class="chip ${locked ? 'locked' : ''}">${o.label} <b>${locked ? o.lv + '日' : n}</b></span>`;
   }).join('');
 }
 

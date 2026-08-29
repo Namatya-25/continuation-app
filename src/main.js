@@ -46,12 +46,13 @@ function renderHome() {
   const lv    = Math.max(1, S.disaster.level);
   const tier  = tierOf(lv);
   const band  = bandOf(lv);
+  const bandNo = BANDS.indexOf(band) + 1;
   const nx    = nextInfo(days);
   const done  = S.streak.lastAchievedOn === logicalToday();
 
   document.documentElement.style.setProperty('--band', band.c);
 
-  // 階級スケール
+  // 災害レベルスケール
   $('#scale').innerHTML = BANDS_HTML(lv, band, days);
   $('#scaleNow').textContent = days > 0 ? band.label : '未観測';
 
@@ -63,13 +64,13 @@ function renderHome() {
     ? '目標 ' + S.settings.targetQualification : '観測所 —';
 
   // 読み取り値
-  $('#lvNum').textContent   = days > 0 ? lv : 0;
+  $('#lvNum').textContent   = "";
   $('#lvName').textContent  = days > 0 ? tier.name : '未発生';
   $('#stNum').textContent   = days;
-  $('#stSub').textContent   = S.disaster.condition === 'weakened' ? '弱まっています'
-    : days > 0 ? '観測中' : 'まだ始まっていません';
+  $('#stSub').textContent   = S.disaster.condition === 'weakened' ? '災害が弱まっています'
+    : days > 0 ? '更新中！' : '災害を育てましょう';
   $('#nextTxt').textContent = nx.max ? 'MAX（これ以上は育ちません）'
-    : days === 0 ? '最初の1歩で階級1になります' : `あと ${nx.need} 日`;
+    : days === 0 ? '最初の1歩で災害レベル1になります' : `あと ${nx.need} 日`;
   $('#nextBar').style.width = (nx.pct * 100) + '%';
   $('#powerTxt').textContent = powerText(days > 0 ? lv : 0);
 
@@ -78,7 +79,7 @@ function renderHome() {
     || (S.settings.examDate && logicalToday() >= S.settings.examDate && days >= 5);
   const cta = $('#cta');
   if (done) {
-    $('#ctaLab').textContent = '被害区域を見る';
+    $('#ctaLab').textContent = '災害を起こす';
     $('#ctaSub').textContent = powerText(lv);
     cta.dataset.act = 'city';
   } else if (finalReady) {
@@ -91,12 +92,14 @@ function renderHome() {
     cta.dataset.act = 'achieve';
   }
 
+  cta.classList.toggle('is-pending', !done);
+
   // ひとこと
   $('#note').innerHTML = S.settings.remindEnabled ? voiceNow(done) : VOICE.today;
   document.title = done ? 'MY DISASTER — 観測記録' : '🌀 今日の1歩がまだです';
 }
 
-/** 気象庁カラースケール風の階級バー */
+/** 気象庁カラースケール風の災害レベルバー */
 function BANDS_HTML(lv, band, days) {
   return BANDS.map(b => `<i style="background:${b.c}"
     class="${lv >= b.min ? 'on' : ''} ${b.c === band.c && days > 0 ? 'cur' : ''}"></i>`).join('');
@@ -150,7 +153,7 @@ function renderSettings() {
    ============================================================ */
 function reveal(o) {
   const tier = tierOf(o.levelAfter);
-  $('#vEyebrow').textContent = o.final ? 'FINAL DISASTER' : o.leveledUp ? 'LEVEL UP' : 'OBSERVED';
+  $('#vEyebrow').textContent = o.final ? 'FINAL DISASTER' : o.leveledUp ? '　がんばった日数' : '　がんばった日数';
   $('#vLv').textContent      = o.final ? '30' : o.levelAfter;
   $('#vName').textContent    = o.final ? '試験会場、消滅' : tier.name;
   $('#vPower').textContent   = o.final
@@ -208,6 +211,40 @@ $('#veil').addEventListener('click', e => {
   if (e.target.id === 'veil') $('#veil').classList.remove('on');
 });
 
+$('#scopeHost').addEventListener('click', e => {
+
+  const face = e.target.closest('.face-images');
+
+  if (!face) return;
+
+  const character = face.closest('.tornado-images');
+
+  face.classList.add('is-tapped');
+  if (!S.flags.tapHintSeen) {
+  S.flags.tapHintSeen = true;
+  persist();
+
+  const hint = face.querySelector('.tap-hint');
+  if (hint) hint.remove();
+  }
+  character.classList.remove('is-bouncing');
+
+  void character.offsetWidth;
+
+  character.classList.add('is-bouncing');
+
+  clearTimeout(face._tapTimer);
+
+  face._tapTimer = setTimeout(() => {
+    face.classList.remove('is-tapped');
+  }, 800);
+
+  character.addEventListener('animationend', () => {
+    character.classList.remove('is-bouncing');
+  }, { once:true });
+
+});
+
 document.querySelectorAll('.nav button').forEach(b =>
   b.addEventListener('click', () => go(b.dataset.go)));
 
@@ -219,7 +256,7 @@ function destroy(g) {
   const id = g.dataset.id;
   if (g.dataset.locked === '1') {
     const def = OBJECTS.find(o => o.id === id);
-    toast(`階級 ${def.lv} で ${def.label} を壊せるようになります`);
+    toast(`災害レベル ${def.lv} で ${def.label} を壊せるようになります`);
     return;
   }
   destroyInProgress = true;
@@ -368,19 +405,23 @@ function handleDeviceMotion(e) {
 function triggerShakeDestroy() {
   if (destroyInProgress) return;
   const lv = Math.max(1, S.disaster.level);
-  const unlocked = unlockedObjects(lv);
+  
+  // 1. 解放されているオブジェクトを取得し、Lv順（低い順）に並べ替える
+  const unlocked = unlockedObjects(lv).sort((a, b) => a.lv - b.lv);
   
   if (unlocked.length === 0) {
     toast('まだ壊せる対象がありません');
     return;
   }
 
-  const targetObj = unlocked[Math.floor(Math.random() * unlocked.length)];
+  // 2. 「まだ壊されていない（破壊数が 0 の）」オブジェクトを上から順に探す
+  const targetObj = unlocked.find(o => (S.city.destroyed[o.id] || 0) === 0) 
+                    || unlocked[0]; // もし全部壊されていれば一番最初のオブジェクトにする
   
   destroyObject(targetObj.id);
   playDestroySound(targetObj.id, S.settings.destroySounds);
 
-  // ── スマホに振動をあたえる（例：80ミリ秒間ブルッとさせる） ──
+  // スマホに振動をあたえる
   if (navigator.vibrate) {
     navigator.vibrate(120);
   }
