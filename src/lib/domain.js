@@ -42,56 +42,41 @@ export function nextInfo(days) { // 旧レベルバー（現在は使用され�
   return { max: false, need: 1, pct: 0 };
 }
 
-export function examInfo() {
-  const examDate = S.settings.examDate;
-  const startDate = S.settings.examStartDate;
+/** 実際のログ日付から連続記録を再計算する */
+export function syncStreakFromLogs() {
+  const dates = [...new Set((S.logs || []).map(l => l.date).filter(Boolean))].sort();
 
-  // 試験日未設定
-  if (!examDate) {
-    return {
-      set: false,
-      daysLeft: null,
-      pct: 0,
-      finished: false,
-    };
+  if (!dates.length) {
+    S.streak.currentDays = 0;
+    S.streak.longestDays = 0;
+    S.streak.lastAchievedOn = null;
+    return { currentDays: 0, longestDays: 0, lastAchievedOn: null };
   }
 
-  const today = logicalToday();
+  let current = 0;
+  let longest = 0;
+  let previous = null;
 
-  const msPerDay = 24 * 60 * 60 * 1000;
+  for (const date of dates) {
+    if (!previous) {
+      current = 1;
+    } else if (daysBetween(previous, date) === 1) {
+      current += 1;
+    } else {
+      current = 1;
+    }
+    longest = Math.max(longest, current);
+    previous = date;
+  }
 
-  const todayTime = new Date(today + 'T00:00:00').getTime();
-  const examTime = new Date(examDate + 'T00:00:00').getTime();
-
-  const daysLeft = Math.ceil(
-    (examTime - todayTime) / msPerDay
-  );
-
-  // 開始日がない場合はバーを安全に0%から始める
-  const startTime = startDate
-    ? new Date(startDate + 'T00:00:00').getTime()
-    : todayTime;
-
-  const totalDays = Math.max(
-    1,
-    Math.ceil((examTime - startTime) / msPerDay)
-  );
-
-  const passedDays = Math.max(
-    0,
-    Math.ceil((todayTime - startTime) / msPerDay)
-  );
-
-  const pct = Math.max(
-    0,
-    Math.min(1, passedDays / totalDays)
-  );
+  S.streak.currentDays = current;
+  S.streak.longestDays = longest;
+  S.streak.lastAchievedOn = dates[dates.length - 1];
 
   return {
-    set: true,
-    daysLeft,
-    pct,
-    finished: daysLeft <= 0,
+    currentDays: current,
+    longestDays: longest,
+    lastAchievedOn: S.streak.lastAchievedOn,
   };
 }
 
@@ -110,14 +95,10 @@ export function applyDecay() {
   if (gap <= 1) { S.disaster.condition = 'normal'; return gap; }
 
   S.disaster.condition = 'weakened';
-
-  if (gap > 3) {
-    const floor = Math.max(0, S.streak.currentDays - (gap - 3));
-    S.streak.currentDays = Math.max(floor, S.streak.currentDays - (gap - 3));
-  }
+  S.streak.currentDays = 1;
 
   S.city.damageState = Math.min(3, gap - 1);
-  S.disaster.level = Math.max(0, S.streak.currentDays);
+  S.disaster.level = Math.max(1, S.streak.currentDays);
   return gap;
 }
 
@@ -125,9 +106,11 @@ export function achieveToday() {
   const t = logicalToday();
   if (S.streak.lastAchievedOn === t) return { already: true };
 
+  const last = S.streak.lastAchievedOn;
   const levelBefore = Math.max(0, S.streak.currentDays);
+  const shouldReset = !last || daysBetween(last, t) > 1;
 
-  S.streak.currentDays += 1;
+  S.streak.currentDays = shouldReset ? 1 : S.streak.currentDays + 1;
   S.streak.lastAchievedOn = t;
   S.streak.longestDays = Math.max(S.streak.longestDays, S.streak.currentDays);
   S.disaster.condition = 'normal';
