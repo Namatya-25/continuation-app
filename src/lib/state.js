@@ -22,7 +22,8 @@ export function blank() {
     logs:      [],                       // { date, step }
     rewards:   { unlockedObjects: [], items: [] },
     city:      { destroyed: {}, damageState: 0 },
-    flags:     { onboardingDone: false, finalDisasterUnlocked: false },
+    // 新しく追加
+    flags:     { onboardingDone: false, finalDisasterUnlocked: false, isInputtingStep: false, },
     dev:       { offsetDays: 0 },        // 開発用。公開時は削除する
   };
 }
