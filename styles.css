@@ -644,6 +644,6 @@ label.f input,label.f select{
   from { opacity: 0; }
   to { opacity: 1; }
 }
-  .sound-settings{grid-template-columns:1fr;padding:2px 12px}
+  .sound-settings{grid-template-columns:1fr;padding:2px 12px
 }
 
