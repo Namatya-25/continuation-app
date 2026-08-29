@@ -396,6 +396,26 @@ h2.head::after{content:'';flex:1;height:1.5px;background:var(--ink)}
 .obj[data-locked="1"]{cursor:not-allowed}
 .obj:hover .hit{opacity:.16}
 .hit{fill:var(--ink);opacity:0;transition:opacity .15s}
+.destroy-fx{position:fixed;inset:0;z-index:65;background:rgba(8,17,29,.92);pointer-events:none}
+.destroy-fx>svg{display:block;width:100%;height:100%;background:none}
+.destroy-backdrop{fill:transparent}
+.destroy-frame{fill:rgba(220,230,239,.08);stroke:#6F89A5;stroke-width:.35}
+.destroy-kicker{fill:#AFC0D2;font-family:var(--mono);font-size:2.1px;letter-spacing:.14em}
+.destroy-stage{overflow:hidden}
+.destroy-ground{stroke:#7E97AF;stroke-width:1.2}
+.destroy-target-copy{filter:brightness(1.9);transform-box:fill-box;transform-origin:center}
+.destroy-tornado{transform-box:fill-box;transform-origin:center;filter:drop-shadow(0 0 3px #DCE6EF)}
+.destroy-tornado-image{width:200px!important;height:200px!important;background:none!important;filter:invert(1)}
+.destroy-tornado-image.tornado-frame-a{animation:destroy-tornado-frame-a .18s steps(1) infinite}
+.destroy-tornado-image.tornado-frame-b{animation:destroy-tornado-frame-b .18s steps(1) infinite}
+.destroy-face{width:86px!important;height:86px!important;background:none!important;animation:destroy-face-pulse .26s ease-in-out infinite alternate}
+@keyframes destroy-tornado-frame-a{0%,49.99%{opacity:1}50%,100%{opacity:0}}
+@keyframes destroy-tornado-frame-b{0%,49.99%{opacity:0}50%,100%{opacity:1}}
+@keyframes destroy-face-pulse{from{transform:scale(.96)}to{transform:scale(1.04)}}
+.destroy-fragments{fill:#DCE6EF;stroke:#FFFFFF;stroke-width:.8}
+.destroy-fragment{opacity:0;transform-box:fill-box;transform-origin:center}
+.destroy-sky{fill:#7799B5}
+.destroy-ground-fill{fill:#344A5F}
 .shake{animation:shake .5s cubic-bezier(.36,.07,.19,.97)}
 @keyframes shake{
   10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}
