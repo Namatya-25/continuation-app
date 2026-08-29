@@ -19,6 +19,20 @@ import { DESTROY_SOUND_IDS, playDestroySound } from './ui/sound.js';
 
 const $ = s => document.querySelector(s);
 
+function examInfo() {
+  const examDate = S.settings.examDate;
+  if (!examDate) {
+    return { set: false, finished: false, daysLeft: 0, pct: 0 };
+  }
+  const today = logicalToday();
+  const finished = today >= examDate;
+  const daysLeft = Math.max(0, Math.round((new Date(examDate) - new Date(today)) / 86400000));
+  const startDate = S.logs.length > 0 ? S.logs[0].date : today;
+  const totalDays = Math.round((new Date(examDate) - new Date(startDate)) / 86400000) + 1;
+  const pct = totalDays > 0 ? Math.min(1, (totalDays - daysLeft) / totalDays) : 0;
+  return { set: true, finished, daysLeft, pct };
+}
+
 function setDestroySounds(enabled) {
   DESTROY_SOUND_IDS.forEach(id => {
     const input = $(`#sound-${id}`);
