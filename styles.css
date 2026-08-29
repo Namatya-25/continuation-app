@@ -404,8 +404,8 @@ h2.head::after{content:'';flex:1;height:1.5px;background:var(--ink)}
 .destroy-stage{overflow:hidden}
 .destroy-ground{stroke:#7E97AF;stroke-width:1.2}
 .destroy-target-copy{filter:brightness(1.9);transform-box:fill-box;transform-origin:center}
-.destroy-tornado{transform-box:fill-box;transform-origin:center;filter:drop-shadow(0 0 3px #DCE6EF)}
-.destroy-tornado-image{width:200px!important;height:200px!important;background:none!important;filter:invert(1)}
+.destroy-tornado{transform-box:fill-box;transform-origin:center}
+.destroy-tornado-image{width:200px!important;height:200px!important;background:none!important}
 .destroy-tornado-image.tornado-frame-a{animation:destroy-tornado-frame-a .18s steps(1) infinite}
 .destroy-tornado-image.tornado-frame-b{animation:destroy-tornado-frame-b .18s steps(1) infinite}
 .destroy-face{width:86px!important;height:86px!important;background:none!important;animation:destroy-face-pulse .26s ease-in-out infinite alternate}
@@ -645,3 +645,4 @@ label.f input,label.f select{
   to { opacity: 1; }
 }
   .sound-settings{grid-template-columns:1fr;padding:2px 12px}
+
