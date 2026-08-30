@@ -561,6 +561,27 @@ function triggerShakeDestroy() {
   toast(`スマホを振って「${targetObj.label}」を破壊した！`);
 }
 
-if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission !== 'function') {
+function requestMotionPermission() {
+  if (typeof DeviceMotionEvent === 'undefined') return;
+
+  if (typeof DeviceMotionEvent.requestPermission === 'function') {
+    DeviceMotionEvent.requestPermission()
+      .then(response => {
+        if (response === 'granted') {
+          window.addEventListener('devicemotion', handleDeviceMotion, false);
+          toast('シェイク検知が有効になりました');
+        }
+      })
+      .catch(console.error);
+    return;
+  }
+
   window.addEventListener('devicemotion', handleDeviceMotion, false);
 }
+
+window.addEventListener('pointerdown', () => {
+  if (!window._motionInitialized) {
+    requestMotionPermission();
+    window._motionInitialized = true;
+  }
+}, { once: true });
