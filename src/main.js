@@ -408,40 +408,6 @@ $('#veil').addEventListener('click', e => {
   if (e.target.id === 'veil') $('#veil').classList.remove('on');
 });
 
-$('#scopeHost').addEventListener('click', e => {
-
-  const face = e.target.closest('.face-images');
-
-  if (!face) return;
-
-  const character = face.closest('.tornado-images');
-
-  face.classList.add('is-tapped');
-  if (!S.flags.tapHintSeen) {
-  S.flags.tapHintSeen = true;
-  persist();
-
-  const hint = face.querySelector('.tap-hint');
-  if (hint) hint.remove();
-  }
-  character.classList.remove('is-bouncing');
-
-  void character.offsetWidth;
-
-  character.classList.add('is-bouncing');
-
-  clearTimeout(face._tapTimer);
-
-  face._tapTimer = setTimeout(() => {
-    face.classList.remove('is-tapped');
-  }, 800);
-
-  character.addEventListener('animationend', () => {
-    character.classList.remove('is-bouncing');
-  }, { once:true });
-
-});
-
 document.querySelectorAll('.nav button').forEach(b =>
   b.addEventListener('click', () => go(b.dataset.go)));
 
@@ -496,16 +462,6 @@ function destroy(g) {
   });
 }
 
-$('#cityHost').addEventListener('click', e => {
-  const g = e.target.closest('.obj');
-  if (g) destroy(g);
-});
-$('#cityHost').addEventListener('keydown', e => {
-  if (e.key === 'Enter' || e.key === ' ') {
-    const g = e.target.closest('.obj');
-    if (g) { e.preventDefault(); destroy(g); }
-  }
-});
 
 /* ---------- 設定 ---------- */
 $('#saveSet').addEventListener('click', () => {
@@ -688,9 +644,7 @@ if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.request
   window.addEventListener('devicemotion', handleDeviceMotion, false);
 }
 
-window.addEventListener('pointerdown', () => {
-  if (!window._motionInitialized) {
-    requestMotionPermission();
-    window._motionInitialized = true;
-  }
-}, { once: true });
+if (!window._motionInitialized) {
+  requestMotionPermission();
+  window._motionInitialized = true;
+}
