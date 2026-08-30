@@ -295,7 +295,26 @@ document.querySelectorAll('.nav button').forEach(b =>
   b.addEventListener('click', () => go(b.dataset.go)));
 
 /* ---------- 破壊 ---------- */
+const RESPAWN_MS = 10000;
+const respawnTimers = new Map();
 let destroyInProgress = false;
+
+function scheduleObjectRespawn(id) {
+  if (respawnTimers.has(id)) {
+    clearTimeout(respawnTimers.get(id));
+  }
+
+  const timer = setTimeout(() => {
+    respawnTimers.delete(id);
+    if ((S.city.destroyed[id] || 0) > 0) {
+      S.city.destroyed[id] = 0;
+      persist();
+      renderCity();
+    }
+  }, RESPAWN_MS);
+
+  respawnTimers.set(id, timer);
+}
 
 function destroy(g) {
   if (destroyInProgress) return;
@@ -312,6 +331,7 @@ function destroy(g) {
   destroyInProgress = true;
   playDestroyAnimation(id, () => playDestroySound(id, S.settings.destroySounds)).then(() => {
     destroyObject(id);
+    scheduleObjectRespawn(id);
     persist();
     renderCity();
     // ▼ ここでビル破壊時のくす玉演出を発火
@@ -474,6 +494,7 @@ function triggerShakeDestroy() {
                     || unlocked[0]; // もし全部壊されていれば一番最初のオブジェクトにする
   
   destroyObject(targetObj.id);
+  scheduleObjectRespawn(targetObj.id);
   playDestroySound(targetObj.id, S.settings.destroySounds);
 
   // スマホに振動をあたえる
