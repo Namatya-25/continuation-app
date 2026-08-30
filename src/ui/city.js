@@ -51,7 +51,7 @@ export function citySVG() {
 export function cityLede() {
   return S.streak.currentDays === 0
     ? '災害がまだ発生していません。1歩を踏み出すと壊せるものが現れます。'
-    : powerText(Math.max(1, S.disaster.level)) + '。壊したい対象をタップしてください。';
+    : powerText(Math.max(1, S.disaster.level)) + '。スマホを振ってみてください！';
 }
 
 export function playDestroyAnimation(id, onImpact) {
