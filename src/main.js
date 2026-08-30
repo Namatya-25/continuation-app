@@ -412,7 +412,7 @@ document.querySelectorAll('.nav button').forEach(b =>
   b.addEventListener('click', () => go(b.dataset.go)));
 
 /* ---------- 破壊 ---------- */
-const RESPAWN_MS = 10000;
+const RESPAWN_MS = 15000;
 const respawnTimers = new Map();
 let destroyInProgress = false;
 
