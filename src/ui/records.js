@@ -7,8 +7,9 @@ import { OBJECTS } from '../data/levels.js';
 import { now, ymd, logicalToday } from '../lib/date.js';
 
 /** 今月のカレンダー */
-export function calendarHTML() {
-  const t = now(), y = t.getFullYear(), m = t.getMonth();
+export function calendarHTML(t = now()) {
+  const y = t.getFullYear();
+  const m = t.getMonth();
   const first = new Date(y, m, 1);
   const last  = new Date(y, m + 1, 0);
   const pad   = (first.getDay() + 6) % 7;      // 月曜始まり

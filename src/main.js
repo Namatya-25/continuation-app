@@ -152,6 +152,8 @@ function renderCity() {
   $('#tally').innerHTML = tallyHTML();
 }
 
+let recordCalendarDate = new Date();
+
 function renderRecords() {
   $('#rSt').textContent  = S.streak.currentDays;
   $('#rMax').textContent = S.streak.longestDays;
@@ -160,12 +162,32 @@ function renderRecords() {
     ? '観測を続けた日には災害が成長しています。'
     : 'まだ記録がありません。最初の1歩から始まります。';
 
-  const cal = calendarHTML();
+  const cal = calendarHTML(recordCalendarDate);
   $('#calTitle').textContent = cal.title;
   $('#cal').innerHTML = cal.html;
   $('#coll').innerHTML = collectionHTML();
   $('#logList').innerHTML = logListHTML();
 }
+
+$('#calPrev').addEventListener('click', () => {
+  recordCalendarDate = new Date(
+    recordCalendarDate.getFullYear(),
+    recordCalendarDate.getMonth() - 1,
+    1
+  );
+
+  renderRecords();
+});
+
+$('#calNext').addEventListener('click', () => {
+  recordCalendarDate = new Date(
+    recordCalendarDate.getFullYear(),
+    recordCalendarDate.getMonth() + 1,
+    1
+  );
+
+  renderRecords();
+});
 
 function renderSettings() {
   $('#fQual').value     = S.settings.targetQualification || '';
