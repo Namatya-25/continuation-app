@@ -546,34 +546,36 @@ function handleDeviceMotion(e) {
 function triggerShakeDestroy() {
   if (destroyInProgress) return;
   const lv = Math.max(1, S.disaster.level);
-  
-  // 1. 解放されているオブジェクトを取得し、Lv順（低い順）に並べ替える
+
   const unlocked = unlockedObjects(lv).sort((a, b) => a.lv - b.lv);
-  
+
   if (unlocked.length === 0) {
     toast('まだ壊せる対象がありません');
     return;
   }
 
-  // 2. 「まだ壊されていない（破壊数が 0 の）」オブジェクトを上から順に探す
-  const targetObj = unlocked.find(o => (S.city.destroyed[o.id] || 0) === 0) 
-                    || unlocked[0]; // もし全部壊されていれば一番最初のオブジェクトにする
-  
-  destroyObject(targetObj.id);
-  scheduleObjectRespawn(targetObj.id);
-  playDestroySound(targetObj.id, S.settings.destroySounds);
+  const targetObj = unlocked.find(o => (S.city.destroyed[o.id] || 0) === 0)
+                    || unlocked[0];
 
-  // スマホに振動をあたえる
-  if (navigator.vibrate) {
-    navigator.vibrate(120);
-  }
-  
-  const el = document.querySelector(`.obj[data-id="${targetObj.id}"]`);
-  if (el) el.classList.add('shake');
+  const isFirstTimeTower = (targetObj.id === 'tower' && (S.city.destroyed['tower'] || 0) === 0);
 
-  persist();
-  renderCity();
-  toast(`スマホを振って「${targetObj.label}」を破壊した！`);
+  destroyInProgress = true;
+  playDestroyAnimation(targetObj.id, () => playDestroySound(targetObj.id, S.settings.destroySounds)).then(() => {
+    destroyObject(targetObj.id);
+    scheduleObjectRespawn(targetObj.id);
+    persist();
+    renderCity();
+
+    if (navigator.vibrate) navigator.vibrate(120);
+
+    if (isFirstTimeTower) {
+      setTimeout(() => revealTowerCelebration(), 400);
+    }
+
+    toast(`スマホを振って「${targetObj.label}」を破壊した！`);
+  }).finally(() => {
+    destroyInProgress = false;
+  });
 }
 
 function requestMotionPermission() {

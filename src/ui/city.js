@@ -140,14 +140,14 @@ export function playDestroyAnimation(id, onImpact) {
 }
 
 function destroyFragments(level, center) {
-  const count = Math.min(16, 3 + Math.ceil(level * 0.45));
+  const count = Math.min(28, 6 + Math.ceil(level * 0.75));
   return Array.from({ length: count }, (_, index) => {
-    const x = center - 78 + (index * 37) % 157;
-    const y = 72 + (index * 29) % 120;
-    const size = 2 + (index % 3);
+    const x = center - 82 + (index * 31) % 164;
+    const y = 64 + (index * 23) % 128;
+    const size = 2 + (index % 4);
     const tilt = index % 2 ? 1 : -1;
     return `<rect class="destroy-fragment" x="${x}" y="${y}" width="${size + 2}" height="${size}"
-      rx=".5" transform="rotate(${tilt * (15 + index * 8)} ${x} ${y})"/>`;
+      rx=".5" transform="rotate(${tilt * (20 + index * 9)} ${x} ${y})"/>`;
   }).join('');
 }
 
