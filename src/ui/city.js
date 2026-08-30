@@ -62,81 +62,33 @@ export function playDestroyAnimation(id, onImpact) {
   if (!host || !target || !layout || !def) return Promise.resolve();
 
   const center = layout.x + layout.w / 2;
-  const currentLevel = Math.max(1, S.disaster.level);
-  const scale = Math.min(0.82, 0.58 + currentLevel / 100);
-  const tornadoLift = 200 - 200 * scale;
-  const startX = center - 190 * scale;
-  const endX = center + 190 * scale;
-  const cropWidth = 220;
-  const cropX = center - cropWidth / 2;
-  const targetOffset = 0;
-  const bandNo = BANDS.indexOf(bandOf(currentLevel)) + 1;
   const fragments = destroyFragments(def.lv, center);
-  const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 1050;
+  const duration = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 900;
   const fx = document.createElement('div');
   fx.className = 'destroy-fx';
   fx.innerHTML = `<svg viewBox="0 0 100 100" aria-hidden="true">
-    <rect class="destroy-backdrop" width="100" height="100"/>
-    <rect class="destroy-frame" x="7" y="13" width="86" height="74"/>
-    <text class="destroy-kicker" x="10" y="10">LEVEL ${def.lv} / ${def.label}</text>
-    <svg class="destroy-stage" x="9" y="16" width="82" height="68"
-      viewBox="${cropX} 40 ${cropWidth} 184" preserveAspectRatio="xMidYMid meet">
-      <rect class="destroy-sky" x="${cropX}" y="40" width="${cropWidth}" height="160"/>
-      <rect class="destroy-ground-fill" x="${cropX}" y="200" width="${cropWidth}" height="24"/>
-      <line x1="${cropX}" y1="200" x2="${cropX + cropWidth}" y2="200" class="destroy-ground"/>
-      <g class="destroy-target-copy" transform="translate(${targetOffset} 0)">${target.innerHTML}</g>
-      <g class="destroy-tornado-lift" transform="translate(0 ${tornadoLift})">
-        <g class="destroy-tornado">
-          <image class="destroy-tornado-image tornado-frame-a" href="./assets/tornado/${bandNo}-1.png"
-            x="-100" y="0" width="200" height="200" preserveAspectRatio="xMidYMid meet"/>
-          <image class="destroy-tornado-image tornado-frame-b" href="./assets/tornado/${bandNo}-2.png"
-            x="-100" y="0" width="200" height="200" preserveAspectRatio="xMidYMid meet"/>
-          <image class="destroy-face" href="./assets/face/${bandNo}-m1.png"
-            x="-43" y="44" width="86" height="86" preserveAspectRatio="xMidYMid meet"/>
-        </g>
-      </g>
-      <g class="destroy-fragments">${fragments}</g>
-    </svg>
+    <g class="destroy-fragments">${fragments}</g>
   </svg>`;
   document.body.append(fx);
 
-  const tornado = fx.querySelector('.destroy-tornado');
-  const targetCopy = fx.querySelector('.destroy-target-copy');
   const fragmentNodes = [...fx.querySelectorAll('.destroy-fragment')];
   const impactTimer = setTimeout(() => {
-    targetCopy.innerHTML = rubble(layout.x, layout.w);
     onImpact?.();
-  }, duration * 0.52);
-  const tornadoAnimation = tornado.animate([
-    { transform: `translateX(${startX}px) scale(${scale})` },
-    { transform: `translateX(${endX}px) scale(${scale})` },
-  ], { duration, easing: 'linear', fill: 'forwards' });
-  const targetAnimation = targetCopy.animate([
-    { transform: `translateX(${targetOffset}px)` },
-    { transform: `translateX(${targetOffset - 5}px)` },
-    { transform: `translateX(${targetOffset + 6}px)` },
-    { transform: `translateX(${targetOffset - 3}px)` },
-    { transform: `translateX(${targetOffset}px)` },
-  ], {
-    duration: Math.max(1, duration * 0.44),
-    delay: duration * 0.38,
-    easing: 'ease-in-out',
-    fill: 'forwards',
-  });
+  }, duration * 0.55);
+
   fragmentNodes.forEach((fragment, index) => {
     const direction = index % 2 ? 1 : -1;
     fragment.animate([
       { opacity: 0, transform: 'translate(0, 0) rotate(0deg)' },
-      { opacity: 1, transform: `translate(${direction * (8 + index * 2)}px, ${-10 - index * 2}px) rotate(${direction * 55}deg)` },
-      { opacity: 0, transform: `translate(${direction * (18 + index * 3)}px, ${8 + index}px) rotate(${direction * 120}deg)` },
-    ], { duration: duration * 0.42, delay: duration * 0.47 + index * 12, easing: 'cubic-bezier(.12,.7,.28,1)', fill: 'forwards' });
+      { opacity: 1, transform: `translate(${direction * (10 + index * 2)}px, ${-12 - index * 2}px) rotate(${direction * 60}deg)` },
+      { opacity: 0, transform: `translate(${direction * (18 + index * 3)}px, ${12 + index}px) rotate(${direction * 140}deg)` },
+    ], { duration: duration * 0.8, delay: index * 8, easing: 'cubic-bezier(.12,.7,.28,1)', fill: 'forwards' });
   });
 
-  return Promise.all([tornadoAnimation.finished, targetAnimation.finished])
-    .finally(() => {
-      clearTimeout(impactTimer);
-      fx.remove();
-    });
+  return Promise.resolve().finally(() => {
+    clearTimeout(impactTimer);
+    fx.remove();
+  });
 }
 
 function destroyFragments(level, center) {
