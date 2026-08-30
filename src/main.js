@@ -165,6 +165,36 @@ function renderRecords() {
   const cal = calendarHTML(recordCalendarDate);
   $('#calTitle').textContent = cal.title;
   $('#cal').innerHTML = cal.html;
+
+  // 最初の学習記録がある月
+  const firstLogDate = S.logs.length
+    ? new Date([...S.logs].sort((a, b) => a.date.localeCompare(b.date))[0].date)
+    : now();
+
+  const firstMonth = new Date(
+    firstLogDate.getFullYear(),
+    firstLogDate.getMonth(),
+    1
+  );
+
+  // 現在の月
+  const current = now();
+  const currentMonth = new Date(
+    current.getFullYear(),
+    current.getMonth(),
+    1
+  );
+
+  // 表示中の月
+  const viewingMonth = new Date(
+    recordCalendarDate.getFullYear(),
+    recordCalendarDate.getMonth(),
+    1
+  );
+
+  // 移動できるか
+  $('#calPrev').disabled = viewingMonth <= firstMonth;
+  $('#calNext').disabled = viewingMonth >= currentMonth;
   $('#coll').innerHTML = collectionHTML();
   $('#logList').innerHTML = logListHTML();
 }
