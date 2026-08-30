@@ -222,8 +222,6 @@ $('#calNext').addEventListener('click', () => {
 function renderSettings() {
   $('#fQual').value     = S.settings.targetQualification || '';
   $('#fExam').value     = S.settings.examDate || '';
-  $('#fTime').value     = S.settings.remindTime || '20:00';
-  $('#fRemind').checked = !!S.settings.remindEnabled;
   DESTROY_SOUND_IDS.forEach(id => {
     const input = $(`#sound-${id}`);
     if (input) input.checked = S.settings.destroySounds?.[id] !== false;
@@ -477,8 +475,6 @@ if (
 }
 
 S.settings.examDate = newExamDate;
-  S.settings.remindTime = $('#fTime').value || '20:00';
-  S.settings.remindEnabled = $('#fRemind').checked;
   S.settings.destroySounds = Object.fromEntries(DESTROY_SOUND_IDS.map(id => [
     id, $('#sound-' + id).checked,
   ]));
