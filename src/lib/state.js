@@ -13,8 +13,6 @@ export function blank() {
       targetQualification: '',
       examDate: '',
       examStartDate: '', // カウントダウン開始日
-      remindTime: '20:00',
-      remindEnabled: true,
       destroySounds: {},
     },
     disaster:  { type: 'tornado', level: 1, exp: 0, condition: 'normal' },
