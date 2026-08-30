@@ -102,7 +102,7 @@ export function applyDecay() {
   return gap;
 }
 
-export function achieveToday() {
+export function achieveToday(customStepText) {
   const t = logicalToday();
   if (S.streak.lastAchievedOn === t) return { already: true };
 
@@ -115,7 +115,9 @@ export function achieveToday() {
   S.streak.longestDays = Math.max(S.streak.longestDays, S.streak.currentDays);
   S.disaster.condition = 'normal';
   S.city.damageState = 0;
-  S.logs.push({ date: t, step: todayStep() });
+  
+  const stepToLog = customStepText && customStepText.trim() ? customStepText.trim() : todayStep();
+  S.logs.push({ date: t, step: stepToLog });
 
   const levelAfter = S.streak.currentDays;
   S.disaster.level = levelAfter;
@@ -132,6 +134,10 @@ export function achieveToday() {
   }
 
   if (levelAfter >= 30) S.flags.finalDisasterUnlocked = true;
+
+  if (S.flags) {
+    S.flags.isInputtingStep = false;
+  }
 
   return {
     already: false,

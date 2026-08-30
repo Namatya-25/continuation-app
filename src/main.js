@@ -5,7 +5,7 @@
 
 import { S, setS, blank } from './lib/state.js';
 import { Storage } from './lib/storage.js';
-import { logicalToday, now, shiftDate, daysBetween } from './lib/date.js';
+import { logicalToday, now, shiftDate } from './lib/date.js';
 import {
   levelOf, tierOf, bandOf, powerText, nextInfo,
   todayStep, applyDecay, achieveToday, destroyObject, unlockedObjects, syncStreakFromLogs,
@@ -18,20 +18,6 @@ import { calendarHTML, collectionHTML, logListHTML } from './ui/records.js';
 import { DESTROY_SOUND_IDS, playDestroySound } from './ui/sound.js';
 
 const $ = s => document.querySelector(s);
-
-function examInfo() {
-  const examDate = S.settings.examDate;
-  if (!examDate) {
-    return { set: false, finished: false, daysLeft: 0, pct: 0 };
-  }
-  const today = logicalToday();
-  const finished = today >= examDate;
-  const daysLeft = Math.max(0, Math.round((new Date(examDate) - new Date(today)) / 86400000));
-  const startDate = S.logs.length > 0 ? S.logs[0].date : today;
-  const totalDays = Math.round((new Date(examDate) - new Date(startDate)) / 86400000) + 1;
-  const pct = totalDays > 0 ? Math.min(1, (totalDays - daysLeft) / totalDays) : 0;
-  return { set: true, finished, daysLeft, pct };
-}
 
 function setDestroySounds(enabled) {
   DESTROY_SOUND_IDS.forEach(id => {
@@ -48,19 +34,6 @@ function persist() { Storage.save(S, toast); }
 /* ============================================================
    画面更新
    ============================================================ */
-function examInfo() {
-  if (!S.settings.examDate) return { set: false, finished: false, daysLeft: 0, pct: 0 };
-
-  const today = logicalToday();
-  const start = S.settings.examStartDate || S.settings.examDate;
-  const total = Math.max(1, daysBetween(start, S.settings.examDate));
-  const daysLeft = Math.max(0, daysBetween(today, S.settings.examDate));
-  const finished = today >= S.settings.examDate;
-  const pct = finished ? 1 : Math.min(1, 1 - (daysLeft / total));
-
-  return { set: true, finished, daysLeft, pct };
-}
-
 function render() {
   syncStreakFromLogs();
   renderHome();
@@ -100,21 +73,28 @@ function renderHome() {
   if (!exam.set) {
     $('#nextTxt').textContent = '試験日が未設定';
     $('#nextBar').style.width = '0%';
-
   } else if (exam.finished) {
     $('#nextTxt').textContent = '試験当日です！';
     $('#nextBar').style.width = '100%';
-
   } else {
     $('#nextTxt').textContent = `試験まであと ${exam.daysLeft} 日`;
     $('#nextBar').style.width = (exam.pct * 100) + '%';
   }
   $('#powerTxt').textContent = powerText(days > 0 ? lv : 0);
 
+  // ▼ 入力ボックスの表示切り替え
+  const inputBox = $('#customInputBox');
+  const cta = $('#cta');
+  
+  if (inputBox) {
+    inputBox.style.display = S.flags.isInputtingStep ? 'block' : 'none';
+    cta.style.display = S.flags.isInputtingStep ? 'none' : 'flex'; // 入力中は元のメインボタンを隠す
+  }
+
   // CTA
   const finalReady = S.flags.finalDisasterUnlocked
     || (S.settings.examDate && logicalToday() >= S.settings.examDate && days >= 5);
-  const cta = $('#cta');
+
   if (done) {
     $('#ctaLab').textContent = '災害を起こす';
     $('#ctaSub').textContent = powerText(lv);
@@ -283,6 +263,34 @@ function go(name) {
    イベント
    ============================================================ */
 $('#cta').addEventListener('click', e => {
+  // ▼ 1. 「この内容で記録する」ボタンが押された場合
+  if (e.target && e.target.id === 'submitCustomStep') {
+    e.stopPropagation();
+    const input = $('#customStepInput');
+    const text = input ? input.value : '';
+    
+    const r = achieveToday(text);
+    if (r.already) { toast('今日はもう記録しました'); return; }
+    
+    S.flags.isInputtingStep = false;
+    persist(); render(); reveal(r);
+    return;
+  }
+
+  // ▼ 2. 「やめる」ボタンが押された場合
+  if (e.target && e.target.id === 'cancelCustomStep') {
+    e.stopPropagation();
+    S.flags.isInputtingStep = false;
+    render();
+    return;
+  }
+
+  // ▼ 3. テキストエリア自体がクリックされたときは何もしない
+  if (e.target && (e.target.id === 'customStepInput' || e.target.closest('textarea'))) {
+    return;
+  }
+
+  // ▼ 4. 通常のボタン操作
   const act = e.currentTarget.dataset.act;
 
   if (act === 'city') { go('city'); return; }
@@ -295,9 +303,38 @@ $('#cta').addEventListener('click', e => {
     return;
   }
 
-  const r = achieveToday();
-  if (r.already) { toast('今日はもう記録しました'); return; }
-  persist(); render(); reveal(r);
+  // 入力モードへ移行
+  if (!S.flags.isInputtingStep) {
+    S.flags.isInputtingStep = true;
+    render();
+    
+    setTimeout(() => {
+      const input = $('#customStepInput');
+      if (input) {
+        input.value = todayStep();
+        input.focus();
+      }
+    }, 50);
+  }
+});
+
+// ▼ 【追加】入力ボックス内のボタン用イベント
+document.addEventListener('click', e => {
+  if (e.target && e.target.id === 'submitCustomStep') {
+    const input = $('#customStepInput');
+    const text = input ? input.value : '';
+    
+    const r = achieveToday(text);
+    if (r.already) { toast('今日はもう記録しました'); return; }
+    
+    S.flags.isInputtingStep = false;
+    persist(); render(); reveal(r);
+  }
+
+  if (e.target && e.target.id === 'cancelCustomStep') {
+    S.flags.isInputtingStep = false;
+    render();
+  }
 });
 
 $('#vClose').addEventListener('click', () => $('#veil').classList.remove('on'));
@@ -305,45 +342,30 @@ $('#veil').addEventListener('click', e => {
   if (e.target.id === 'veil') $('#veil').classList.remove('on');
 });
 
-$('#scopeHost').addEventListener('click', e => {
-
-  const face = e.target.closest('.face-images');
-
-  if (!face) return;
-
-  const character = face.closest('.tornado-images');
-
-  face.classList.add('is-tapped');
-  if (!S.flags.tapHintSeen) {
-  S.flags.tapHintSeen = true;
-  persist();
-
-  const hint = face.querySelector('.tap-hint');
-  if (hint) hint.remove();
-  }
-  character.classList.remove('is-bouncing');
-
-  void character.offsetWidth;
-
-  character.classList.add('is-bouncing');
-
-  clearTimeout(face._tapTimer);
-
-  face._tapTimer = setTimeout(() => {
-    face.classList.remove('is-tapped');
-  }, 800);
-
-  character.addEventListener('animationend', () => {
-    character.classList.remove('is-bouncing');
-  }, { once:true });
-
-});
-
 document.querySelectorAll('.nav button').forEach(b =>
   b.addEventListener('click', () => go(b.dataset.go)));
 
 /* ---------- 破壊 ---------- */
+const RESPAWN_MS = 10000;
+const respawnTimers = new Map();
 let destroyInProgress = false;
+
+function scheduleObjectRespawn(id) {
+  if (respawnTimers.has(id)) {
+    clearTimeout(respawnTimers.get(id));
+  }
+
+  const timer = setTimeout(() => {
+    respawnTimers.delete(id);
+    if ((S.city.destroyed[id] || 0) > 0) {
+      S.city.destroyed[id] = 0;
+      persist();
+      renderCity();
+    }
+  }, RESPAWN_MS);
+
+  respawnTimers.set(id, timer);
+}
 
 function destroy(g) {
   if (destroyInProgress) return;
@@ -360,6 +382,7 @@ function destroy(g) {
   destroyInProgress = true;
   playDestroyAnimation(id, () => playDestroySound(id, S.settings.destroySounds)).then(() => {
     destroyObject(id);
+    scheduleObjectRespawn(id);
     persist();
     renderCity();
     // ▼ ここでビル破壊時のくす玉演出を発火
@@ -372,17 +395,6 @@ function destroy(g) {
     destroyInProgress = false;
   });
 }
-
-$('#cityHost').addEventListener('click', e => {
-  const g = e.target.closest('.obj');
-  if (g) destroy(g);
-});
-$('#cityHost').addEventListener('keydown', e => {
-  if (e.key === 'Enter' || e.key === ' ') {
-    const g = e.target.closest('.obj');
-    if (g) { e.preventDefault(); destroy(g); }
-  }
-});
 
 /* ---------- 設定 ---------- */
 $('#saveSet').addEventListener('click', () => {
@@ -533,6 +545,7 @@ function triggerShakeDestroy() {
                     || unlocked[0]; // もし全部壊されていれば一番最初のオブジェクトにする
   
   destroyObject(targetObj.id);
+  scheduleObjectRespawn(targetObj.id);
   playDestroySound(targetObj.id, S.settings.destroySounds);
 
   // スマホに振動をあたえる
@@ -549,7 +562,9 @@ function triggerShakeDestroy() {
 }
 
 function requestMotionPermission() {
-  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+  if (typeof DeviceMotionEvent === 'undefined') return;
+
+  if (typeof DeviceMotionEvent.requestPermission === 'function') {
     DeviceMotionEvent.requestPermission()
       .then(response => {
         if (response === 'granted') {
@@ -558,13 +573,13 @@ function requestMotionPermission() {
         }
       })
       .catch(console.error);
-  } else {
-    window.addEventListener('devicemotion', handleDeviceMotion, false);
+    return;
   }
+
+  window.addEventListener('devicemotion', handleDeviceMotion, false);
 }
 
-// 画面を最初にタップしたときにセンサーの権限を有効化（iOS対策）
-window.addEventListener('click', () => {
+window.addEventListener('pointerdown', () => {
   if (!window._motionInitialized) {
     requestMotionPermission();
     window._motionInitialized = true;
