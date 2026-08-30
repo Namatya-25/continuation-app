@@ -462,6 +462,11 @@ h2.head::after{content:'';flex:1;height:1.5px;background:var(--ink)}
   transform: translateY(1px);
 }
 
+.cal-nav:disabled {
+  opacity: .3;
+  cursor: default;
+}
+
 /* ---------- stats ---------- */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5px;background:var(--line);border:1.5px solid var(--ink)}
 .stats div{background:var(--panel-2);padding:10px 12px}
