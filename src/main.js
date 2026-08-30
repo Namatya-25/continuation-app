@@ -520,9 +520,12 @@ $('#devReset').addEventListener('click', () => {
    ============================================================ */
 let lastX = 0, lastY = 0, lastZ = 0;
 let lastUpdate = 0;
-const SHAKE_THRESHOLD = 3000; // 振る強さの閾値
+let motionReady = false;
+const SHAKE_THRESHOLD = 1800; // 振る強さの閾値（iPhoneでも反応しやすいように調整）
 
 function handleDeviceMotion(e) {
+  if (!motionReady) return;
+
   const current = e.accelerationIncludingGravity;
   if (!current) return;
 
@@ -579,10 +582,13 @@ function triggerShakeDestroy() {
 }
 
 function requestMotionPermission() {
-if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+  if (motionReady) return;
+
+  if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
     DeviceMotionEvent.requestPermission()
       .then(response => {
         if (response === 'granted') {
+          motionReady = true;
           window.addEventListener('devicemotion', handleDeviceMotion, false);
           toast('シェイク検知が有効になりました');
         }
@@ -591,10 +597,15 @@ if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.request
     return;
   }
 
+  motionReady = true;
   window.addEventListener('devicemotion', handleDeviceMotion, false);
 }
 
-if (!window._motionInitialized) {
-  requestMotionPermission();
+function enableMotionOnUserGesture() {
+  if (window._motionInitialized) return;
   window._motionInitialized = true;
+  requestMotionPermission();
 }
+
+document.addEventListener('touchstart', enableMotionOnUserGesture, { once: true, passive: true });
+document.addEventListener('click', enableMotionOnUserGesture, { once: true, passive: true });
