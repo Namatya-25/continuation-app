@@ -638,7 +638,14 @@ function requestMotionPermission() {
         if (response === 'granted') {
           motionReady = true;
           window.addEventListener('devicemotion', handleDeviceMotion, false);
+          const btn = $('#motionPermissionBtn');
+          if (btn) {
+            btn.textContent = 'シェイク許可済み';
+            btn.disabled = true;
+          }
           toast('シェイク検知が有効になりました');
+        } else {
+          toast('この端末ではシェイク認証を許可してください');
         }
       })
       .catch(console.error);
@@ -647,13 +654,21 @@ function requestMotionPermission() {
 
   motionReady = true;
   window.addEventListener('devicemotion', handleDeviceMotion, false);
+  const btn = $('#motionPermissionBtn');
+  if (btn) {
+    btn.textContent = 'シェイク許可済み';
+    btn.disabled = true;
+  }
 }
 
-function enableMotionOnUserGesture() {
-  if (window._motionInitialized) return;
-  window._motionInitialized = true;
-  requestMotionPermission();
+const motionBtn = $('#motionPermissionBtn');
+if (motionBtn) {
+  motionBtn.addEventListener('click', () => {
+    requestMotionPermission();
+    if (typeof DeviceMotionEvent === 'undefined' || typeof DeviceMotionEvent.requestPermission !== 'function') {
+      motionBtn.textContent = 'シェイク許可済み';
+      motionBtn.disabled = true;
+    }
+  });
 }
 
-document.addEventListener('touchstart', enableMotionOnUserGesture, { once: true, passive: true });
-document.addEventListener('click', enableMotionOnUserGesture, { once: true, passive: true });
