@@ -42,12 +42,37 @@ const SOUND_URLS = {
   arcade: ARCADE_BREAK_URL, tower: TOWER_BREAK_URL,
 };
 
+let audioUnlocked = false;
+
+export function unlockDestroyAudio() {
+  if (audioUnlocked) return true;
+
+  const AudioCtor = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtor) return false;
+
+  try {
+    const ctx = new AudioCtor();
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {});
+    }
+    audioUnlocked = true;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function playDestroySound(id, volumes = {}) {
   const soundUrl = SOUND_URLS[id];
   if (!soundUrl || volumes[id] === false) return;
 
   const audio = new Audio(soundUrl);
   audio.volume = DEFAULT_VOLUMES[id];
+
+  if (!audioUnlocked) {
+    unlockDestroyAudio();
+  }
+
   audio.play().catch(() => {});
 }
 

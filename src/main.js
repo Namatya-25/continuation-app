@@ -15,7 +15,7 @@ import { STEPS, VOICE } from './data/copy.js';
 import { scopeSVG } from './ui/scope.js';
 import { citySVG, cityLede, tallyHTML, playDestroyAnimation } from './ui/city.js';
 import { calendarHTML, collectionHTML, logListHTML } from './ui/records.js';
-import { DESTROY_SOUND_IDS, playDestroySound } from './ui/sound.js';
+import { DESTROY_SOUND_IDS, playDestroySound, unlockDestroyAudio } from './ui/sound.js';
 
 const $ = s => document.querySelector(s);
 
@@ -616,6 +616,7 @@ function requestMotionPermission() {
 const motionBtn = $('#motionPermissionBtn');
 if (motionBtn) {
   motionBtn.addEventListener('click', () => {
+    unlockDestroyAudio();
     requestMotionPermission();
     if (typeof DeviceMotionEvent === 'undefined' || typeof DeviceMotionEvent.requestPermission !== 'function') {
       motionBtn.textContent = 'シェイク許可済み';
@@ -623,4 +624,7 @@ if (motionBtn) {
     }
   });
 }
+
+document.addEventListener('pointerdown', unlockDestroyAudio, { passive: true, once: true });
+document.addEventListener('touchstart', unlockDestroyAudio, { passive: true, once: true });
 
