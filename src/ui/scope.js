@@ -38,7 +38,6 @@ export function scopeSVG() {
         <img class="face-image face-m1" src="./assets/face/${bandNo}-m1.png" alt="" >
         <img class="face-image face-m2" src="./assets/face/${bandNo}-m2.png" alt="" >
         <img class="face-image face-m3" src="./assets/face/${bandNo}-m3.png" alt="" >
-        ${!S.flags.tapHintSeen ? '<div class="tap-hint">タップで反応</div>' : ''}
       </div>
     </div>
   `;
