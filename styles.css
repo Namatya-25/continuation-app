@@ -446,6 +446,21 @@ h2.head::after{content:'';flex:1;height:1.5px;background:var(--ink)}
   display:grid;grid-template-columns:repeat(7,1fr);gap:4px;
   font-family:var(--mono);font-size:9.5px;color:var(--muted);text-align:center;
 }
+.cal-nav {
+  width: 32px;
+  height: 28px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.cal-nav:active {
+  transform: translateY(1px);
+}
 
 /* ---------- stats ---------- */
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5px;background:var(--line);border:1.5px solid var(--ink)}
