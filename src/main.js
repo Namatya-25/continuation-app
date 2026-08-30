@@ -19,6 +19,20 @@ import { DESTROY_SOUND_IDS, playDestroySound } from './ui/sound.js';
 
 const $ = s => document.querySelector(s);
 
+function examInfo() {
+  const examDate = S.settings.examDate;
+  if (!examDate) {
+    return { set: false, finished: false, daysLeft: 0, pct: 0 };
+  }
+  const today = logicalToday();
+  const finished = today >= examDate;
+  const daysLeft = Math.max(0, Math.round((new Date(examDate) - new Date(today)) / 86400000));
+  const startDate = S.logs.length > 0 ? S.logs[0].date : today;
+  const totalDays = Math.round((new Date(examDate) - new Date(startDate)) / 86400000) + 1;
+  const pct = totalDays > 0 ? Math.min(1, (totalDays - daysLeft) / totalDays) : 0;
+  return { set: true, finished, daysLeft, pct };
+}
+
 function setDestroySounds(enabled) {
   DESTROY_SOUND_IDS.forEach(id => {
     const input = $(`#sound-${id}`);
@@ -342,6 +356,40 @@ $('#veil').addEventListener('click', e => {
   if (e.target.id === 'veil') $('#veil').classList.remove('on');
 });
 
+$('#scopeHost').addEventListener('click', e => {
+
+  const face = e.target.closest('.face-images');
+
+  if (!face) return;
+
+  const character = face.closest('.tornado-images');
+
+  face.classList.add('is-tapped');
+  if (!S.flags.tapHintSeen) {
+  S.flags.tapHintSeen = true;
+  persist();
+
+  const hint = face.querySelector('.tap-hint');
+  if (hint) hint.remove();
+  }
+  character.classList.remove('is-bouncing');
+
+  void character.offsetWidth;
+
+  character.classList.add('is-bouncing');
+
+  clearTimeout(face._tapTimer);
+
+  face._tapTimer = setTimeout(() => {
+    face.classList.remove('is-tapped');
+  }, 800);
+
+  character.addEventListener('animationend', () => {
+    character.classList.remove('is-bouncing');
+  }, { once:true });
+
+});
+
 document.querySelectorAll('.nav button').forEach(b =>
   b.addEventListener('click', () => go(b.dataset.go)));
 
@@ -395,6 +443,17 @@ function destroy(g) {
     destroyInProgress = false;
   });
 }
+
+$('#cityHost').addEventListener('click', e => {
+  const g = e.target.closest('.obj');
+  if (g) destroy(g);
+});
+$('#cityHost').addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    const g = e.target.closest('.obj');
+    if (g) { e.preventDefault(); destroy(g); }
+  }
+});
 
 /* ---------- 設定 ---------- */
 $('#saveSet').addEventListener('click', () => {
@@ -562,9 +621,7 @@ function triggerShakeDestroy() {
 }
 
 function requestMotionPermission() {
-  if (typeof DeviceMotionEvent === 'undefined') return;
-
-  if (typeof DeviceMotionEvent.requestPermission === 'function') {
+if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
     DeviceMotionEvent.requestPermission()
       .then(response => {
         if (response === 'granted') {

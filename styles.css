@@ -192,6 +192,16 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
   opacity:0;
 }
 
+.face-images.is-tapped .face-m1,
+.face-images.is-tapped .face-m2{
+  animation:none;
+  opacity:0;
+}
+
+.face-images.is-tapped .face-m3{
+  opacity:1;
+}
+
 @keyframes blink{
   0%, 45%, 100%{
     opacity:0;
@@ -220,6 +230,29 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
 .tornado-images.is-weakened{
   opacity:.45;
   transition:opacity .5s ease;
+}
+
+/* キャラクター全体のタップ反応 */
+.tornado-images.is-bouncing{
+  animation: character-jump .45s ease-out;
+}
+
+@keyframes character-jump{
+  0%{
+    transform:translateY(0);
+  }
+  35%{
+    transform:translateY(-12px);
+  }
+  65%{
+    transform:translateY(0);
+  }
+  82%{
+    transform:translateY(-4px);
+  }
+  100%{
+    transform:translateY(0);
+  }
 }
 
 .scope-slot svg{display:block;width:100%;height:auto}
@@ -295,6 +328,34 @@ input,select{font-family:inherit;font-size:15px;color:var(--ink)}
     box-shadow:
       0 2px 0 rgba(0,0,0,.22),
       inset 0 0 20px color-mix(in srgb, var(--band) 75%, transparent);
+  }
+}
+
+/* ---------- tap hint ---------- */
+.tap-hint{
+  position:absolute;
+  left:50%;
+  top:30%;
+  transform:translate(-50%,-50%);
+  z-index:3;
+
+  color:rgba(255,255,255,.85);
+  font-size:15px;
+  font-weight:500;
+  letter-spacing:.08em;
+  white-space:nowrap;
+
+  pointer-events:none;
+
+  animation:tap-hint-fade 2s ease-in-out infinite;
+}
+
+@keyframes tap-hint-fade{
+  0%,100%{
+    opacity:.55;
+  }
+  50%{
+    opacity:1;
   }
 }
 
