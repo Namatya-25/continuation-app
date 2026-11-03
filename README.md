@@ -6,17 +6,22 @@
 毎日の小さな勉強で「災害」が育ち、育った災害でスマホを振って街を壊せます。
 勉強のプレッシャーや退屈さを、看板やビルを壊す気持ちよさで発散させます。
 
-<img src="docs/screenshot-home.png" width="280" alt="育成画面のスクリーンショット">
-
 ---
 
 ## デモ
 
-**https://namatya-25.github.io/continuation-app/**
-
-<img src="docs/qr.png" width="160" alt="デモページのQRコード">
-
-📱 スマホで開いて、端末を振ってみてください
+<table>
+  <tr>
+    <td><img src="docs/screenshot-home.png" width="280" alt="育成画面のスクリーンショット"></td>
+    <td valign="middle">
+      <b><a href="https://namatya-25.github.io/continuation-app/">https://namatya-25.github.io/continuation-app/</a></b>
+      <br><br>
+      <img src="docs/qr.png" width="160" alt="デモページのQRコード">
+      <br><br>
+      📱 スマホで開いて、端末を振ってみてください
+    </td>
+  </tr>
+</table>
 
 ### デモ動画
 
